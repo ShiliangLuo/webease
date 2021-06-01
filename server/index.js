@@ -47,42 +47,6 @@ app.use(cache('2 minutes', (req, res) => res.statusCode === 200));
 // app.use(koaStatic(resolve('../dist/client')));
 app.use(express.static(resolve('../dist/client')));
 
-// 获得一个createBundleRenderer
-const { createBundleRenderer } = require('vue-server-renderer');
-const serverBundle = require('../dist/server/vue-ssr-server-bundle.json');
-const clientManifest = require('../dist/client/vue-ssr-client-manifest.json');
-
-const renderer = createBundleRenderer(serverBundle, {
-  runInNewContext: false,
-  template: fs.readFileSync(
-    path.resolve(__dirname, '../src/index.template.html'),
-    'utf-8'
-  ),
-  clientManifest,
-});
-
-function renderToString(context) {
-  return new Promise((resolve, reject) => {
-    renderer.renderToString(context, (err, html) => {
-      // console.log('html', html);
-      err ? reject(err) : resolve(html);
-    });
-  });
-}
-
-// 添加一个中间件来处理所有请求
-app.use(async (ctx, next) => {
-  const context = {
-    title: '测试标题',
-    url: ctx.url,
-  };
-  // console.log('ctx.url', ctx.url);
-
-  const html = await renderToString(context).catch(err => console.log(err));
-  // console.log('html', html);
-  ctx.body = html;
-});
-
 // router
 const special = {
   'daily_signin.js': '/daily_signin',

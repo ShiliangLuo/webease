@@ -18,7 +18,7 @@ const errHandler = err => {
 
 // 请求拦截器
 service.interceptors.request.use(config => {
-  console.log('config', config);
+  // console.log('config', config);
   return config;
 }, errHandler);
 
