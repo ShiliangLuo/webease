@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "cross-env RUN_ENV=client vue-cli-service serve",
     "build": "vue-cli-service build",
     "start": "npm run build:server && npm run build:client && npm run service",
     "build:client": "cross-env RUN_ENV=client vue-cli-service build",
     "build:server": "cross-env RUN_ENV=server vue-cli-service build --mode server",
-    "service": "node server\\index.js"
+    "service": "node server\\index.js",
+    "dev:serve": "node server\\ssr.js",
+    "dev": "concurrently \"npm run serve\" \"npm run dev:serve\" "
   },
   "dependencies": {
     "apicache": "^1.6.2",
@@ -16,6 +18,7 @@
     "core-js": "^3.6.5",
     "express": "^4.17.1",
     "koa": "^2.13.1",
+    "koa-router": "^10.0.0",
     "koa-static": "^5.0.0",
     "pac-proxy-agent": "^4.1.0",
     "request": "^2.88.2",
@@ -29,11 +32,14 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "concurrently": "^6.2.0",
     "cross-env": "^7.0.3",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
+    "memory-fs": "^0.5.0",
     "vue-server-renderer": "^2.6.11",
     "vue-template-compiler": "^2.6.11",
+    "webpack": "^5.38.1",
     "webpack-node-externals": "^3.0.0"
   }
 }
