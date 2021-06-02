@@ -49,10 +49,10 @@ const handleRequest = async ctx => {
   const renderer = createBundleRenderer(bundle, {
     runInNewContext: false,
     template: fs.readFileSync(
-      path.resolve(__dirname, '../src/index.temp.html'),
+      path.resolve(__dirname, '../src/index.template.html'),
       'utf-8'
     ),
-    clientManifest: clientManifest,
+    clientManifest,
   });
   const html = await renderToString(ctx, renderer);
   ctx.body = html;
