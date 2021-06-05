@@ -9,13 +9,13 @@
     "build:client": "cross-env RUN_ENV=client vue-cli-service build",
     "build:server": "cross-env RUN_ENV=server vue-cli-service build --mode server",
     "service": "node server\\index.js",
-    "dev:serve": "node server\\ssr.js",
-    "dev": "concurrently \"npm run serve\" \"npm run dev:serve\" "
+    "dev": "concurrently \"npm run serve\" \"npm run service\""
   },
   "dependencies": {
     "apicache": "^1.6.2",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "element-ui": "^2.15.2",
     "express": "^4.17.1",
     "koa": "^2.13.1",
     "koa-router": "^10.0.0",

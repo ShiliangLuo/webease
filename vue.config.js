@@ -39,4 +39,22 @@ module.exports = {
     // 客户端默认文件名为 `vue-ssr-client-manifest.json`
     plugins: [isServer ? new VueSSRServerPlugin() : new VueSSRClientPlugin()],
   },
+  devServer: {
+    // 环境配置
+    port: 88,
+    https: false,
+    hotOnly: false,
+    open: false, // 配置自动启动浏览器
+    compress: true, // 启用gzip压缩
+    proxy: {
+      '/api': {
+        target: "http://localhost:3000",
+        changeOrigin: true, // 是否改变域名
+        ws: true,
+        pathRewrite: {
+          '^/api': ''
+        }
+      },
+    }
+  },
 };

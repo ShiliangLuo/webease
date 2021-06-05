@@ -1,9 +1,12 @@
 <template>
   <div id="app">
-    <router-view/>
+    <keep-alive>
+      <router-view />
+    </keep-alive>
   </div>
 </template>
 
 <style lang="less">
 @import url('./common/reset.less');
+@import url('./common/common.less');
 </style>

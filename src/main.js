@@ -4,6 +4,8 @@ import createRouter from './router';
 import createStore from './store';
 import { sync } from 'vuex-router-sync';
 
+import './element';
+
 Vue.config.productionTip = false;
 
 export default function createApp() {

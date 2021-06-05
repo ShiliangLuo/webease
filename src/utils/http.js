@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const service = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: process.env.NODE_ENE === 'development' ? '/api' : 'http://localhost:3000',
   timeout: 20000
 });
 
@@ -23,9 +23,9 @@ service.interceptors.request.use(config => {
 }, errHandler);
 
 // 响应拦截器
-service.interceptors.response.use(config => {
-  console.log('config', config);
-  return config;
+service.interceptors.response.use(response => {
+  // console.log('config', config);
+  return response.data;
 }, errHandler);
 
 const $post = (url, data, config = {}) => {
