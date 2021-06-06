@@ -1,8 +1,8 @@
 <template>
   <div class="table-search-empty">
-    <div>
+    <!-- <div>
       <img src="@/assets/search_none@2x.png">
-    </div>
+    </div> -->
     <div>抱歉，没有任何搜索结果</div>
   </div>
 </template>

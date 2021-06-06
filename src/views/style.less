@@ -10,9 +10,9 @@
     box-sizing: border-box;
     width: 1200px;
     margin: 0 auto;
-    background: rgba(255, 255, 255, .2);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     padding: 30px 40px;
   }
 
@@ -20,11 +20,11 @@
     font-size: 18px;
     cursor: pointer;
     &:hover {
-      color: #409eff;
+      color: #7bffed;
     }
   }
 
-  .back{
+  .back {
     position: absolute;
     right: 40px;
     top: 30px;
@@ -44,12 +44,15 @@
     thead {
       color: #fff;
     }
-    th,tr {
+    th,
+    tr {
       background: none;
     }
 
-    .el-table--enable-row-hover .el-table__body tr:hover>td {
-      background: rgba(0, 0, 0, .3);
+    &.el-table--enable-row-hover {
+      .el-table__body tr:hover > td {
+        background: rgba(0, 0, 0, 0.3);
+      }
     }
   }
 
@@ -57,7 +60,8 @@
     .el-pagination__total {
       color: #fff;
     }
-    .btn-next, .btn-prev {
+    .btn-next,
+    .btn-prev {
       background: none;
     }
     ul {
@@ -65,7 +69,7 @@
         background: none;
         color: #fff;
         &.active {
-          color: #409EFF;
+          color: #7bffed;
         }
       }
     }

@@ -23,10 +23,10 @@
         <el-table-column label="序号" width="60" type="index" />
         <el-table-column prop="name" label="音乐标题" show-overflow-tooltip>
           <template v-slot="record">
-            <span class="pointer color-blue" @click="playItem(record.row)">
+            <span class="pointer" style="color: #7bffed;" @click="playItem(record.row)">
               {{ record.row.name }}
             </span>
-            <span class="color-gray ft-12" style="margin-left: 10px;">
+            <span class="ft-12" style="margin-left: 10px;">
               {{ record.row.alias[0] }}
             </span>
           </template>
@@ -153,7 +153,6 @@ export default {
       console.log('val', val);
       this.tableData.forEach(item => {
         if (this.id === item.id) {
-          console.log('this.id', this.id);
           item.paused = val;
         }
       });

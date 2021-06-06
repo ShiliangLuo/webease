@@ -13,13 +13,16 @@ function setSource(url, vm) {
 
 // audio播放与暂停，并回调出当前状态
 function play(cb, vm) {
+  clearInterval(timer);
+
   if (audio.paused) {
     audio.play().catch(e => console.log(e));
 
     // 设置播放时间
+    vm.currentTime = 0;
     timer = setInterval(() => {
-      console.log('timer');
       vm.currentTime = audioCurrentTime();
+      // console.log('buffered', audio.buffered.end(0));
 
       if (vm.currentTime === audio.duration) {
         cb && cb(audio.paused);
@@ -30,8 +33,6 @@ function play(cb, vm) {
     }, 1000);
   } else {
     audio.pause();
-
-    clearInterval(timer);
   }
 
   cb && cb(audio.paused);
