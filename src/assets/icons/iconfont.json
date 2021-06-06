@@ -1,0 +1,23 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "593997",
+      "name": "SOUND MINUS",
+      "font_class": "soundminus",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "1906315",
+      "name": "SOUND PLUS",
+      "font_class": "SOUNDPLUS",
+      "unicode": "e6fc",
+      "unicode_decimal": 59132
+    }
+  ]
+}

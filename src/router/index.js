@@ -8,12 +8,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: () => import('@/views/Home.vue'),
-  },
-  {
-    path: '/player',
-    name: 'player',
-    component: () => import('@/views/player.vue'),
-  },
+  }
 ];
 
 export default function createRouter() {

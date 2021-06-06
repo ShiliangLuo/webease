@@ -3,6 +3,7 @@ import './style.less';
 
 const audio = new Audio();
 let timer = null;
+audio.volume = 0.3;
 
 // 设置audio的src并开始播放
 function setSource(url, vm) {
@@ -12,16 +13,18 @@ function setSource(url, vm) {
 
 // audio播放与暂停，并回调出当前状态
 function play(cb, vm) {
-  // audio.paused ? audio.play().catch(e => console.log(e)) : audio.pause();
   if (audio.paused) {
     audio.play().catch(e => console.log(e));
 
     // 设置播放时间
     timer = setInterval(() => {
+      console.log('timer');
       vm.currentTime = audioCurrentTime();
 
       if (vm.currentTime === audio.duration) {
         cb && cb(audio.paused);
+        // emit当前播放器状态
+        vm.$emit('update:status', audio.paused);
         clearInterval(timer);
       }
     }, 1000);
@@ -32,6 +35,8 @@ function play(cb, vm) {
   }
 
   cb && cb(audio.paused);
+  // emit当前播放器状态
+  vm.$emit('update:status', audio.paused);
 }
 
 // 设置/获取播放百分比
@@ -39,6 +44,11 @@ function audioCurrentTime(time) {
   time && (audio.currentTime = time);
 
   return audio.currentTime;
+}
+
+// 设置音量
+function setVolume(volumn, vm) {
+  vm.volume = audio.volume = volumn;
 }
 
 // 秒数转mm:ss格式
@@ -63,12 +73,17 @@ const EasePlayer = {
       type: String,
       default: '',
     },
+    status: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       duration: 0,
       paused: true,
       currentTime: 0,
+      volume: 0.3,
     };
   },
   created() {
@@ -93,11 +108,42 @@ const EasePlayer = {
     },
   },
   render() {
+    // 控制按钮
+    const controlBtns = (
+      <div class="player-btns">
+        <span class="aside-icon">
+          <i class="el-icon-caret-left" />
+        </span>
+        <span
+          class="play-icon"
+          onClick={() =>
+            audio.src && play(paused => (this.paused = paused), this)
+          }
+        >
+          {this.paused ? (
+            <i class="el-icon-video-play" />
+          ) : (
+            <i class="el-icon-video-pause" />
+          )}
+        </span>
+        <span class="aside-icon">
+          <i class="el-icon-caret-right" />
+        </span>
+      </div>
+    );
+
     // 进度条
     const progressBar = (
       <div class="player-progress">
-        <div class="time">00:00</div>
-        <div class="player-progress-bar">
+        <div class="time">{timeToMinutes(this.currentTime)}</div>
+        <div
+          class="player-progress-bar"
+          onClick={e =>
+            this.paused
+              ? audio.src && play(paused => (this.paused = paused), this)
+              : audioCurrentTime((e.offsetX / 400) * this.duration)
+          }
+        >
           <div
             class="player-progress-al"
             style={{ width: this.getWidth + 'px' }}
@@ -112,30 +158,47 @@ const EasePlayer = {
       </div>
     );
 
+    // 音量控制条
+    const volumnBar = (
+      <div class="player-volume">
+        <div
+          class="player-volume-icon pointer fl"
+          onClick={() =>
+            this.volume !== 0 ? setVolume(0, this) : setVolume(0.3, this)
+          }
+        >
+          {this.volume !== 0 ? (
+            <i class="iconfont icon-SOUNDPLUS" />
+          ) : (
+            <i class="iconfont icon-soundminus" />
+          )}
+        </div>
+
+        <div class="player-volume-progress fl">
+          <div
+            class="player-volume-progress-bar"
+            onClick={e => setVolume(e.offsetX / 100, this)}
+          >
+            <div
+              class="player-volume-progress-al"
+              style={{ width: this.volume * 100 + 'px' }}
+            >
+              <span
+                class="player-volume-progress-dot"
+                style={{ left: this.volume * 100 - 3 + 'px' }}
+              ></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
     return (
       <div class="player" ref="playerContainer">
         <div class="player-main">
-          <div class="player-btns">
-            <span class="aside-icon">
-              <i class="el-icon-caret-left" />
-            </span>
-            <span
-              class="play-icon"
-              onClick={() =>
-                audio.src && play(paused => (this.paused = paused), this)
-              }
-            >
-              {this.paused ? (
-                <i class="el-icon-video-play" />
-              ) : (
-                <i class="el-icon-video-pause" />
-              )}
-            </span>
-            <span class="aside-icon">
-              <i class="el-icon-caret-right" />
-            </span>
-          </div>
+          {controlBtns}
           {progressBar}
+          {volumnBar}
         </div>
       </div>
     );

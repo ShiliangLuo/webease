@@ -38,9 +38,18 @@
             {{ timeToMinutes(record.row.duration) }}
           </template>
         </el-table-column>
-        <el-table-column prop="duration" width="100">
-          <template>
-            <i class="el-icon-video-play" />
+        <el-table-column prop="operation" width="100">
+          <template v-slot="record">
+            <i
+              class="el-icon-video-play table-play-btn"
+              v-if="currentStatus"
+              @click="playItem(record.row)"
+            />
+            <i
+              class="el-icon-video-pause table-play-btn"
+              v-else
+              @click="playItem(record.row)"
+            />
           </template>
         </el-table-column>
       </el-table>
@@ -55,14 +64,14 @@
         />
       </div>
     </div>
-    <ease-player :url="url"></ease-player>
+    <ease-player :url="url" :status.sync="currentStatus"></ease-player>
   </div>
 </template>
 
 <script>
 import SearchEmpty from '@/components/SearchEmpty';
 import EasePlayer from '@/components/Player/index';
-import { search, song } from '@/api/index';
+import { search, song, check } from '@/api/index';
 
 export default {
   name: 'Home',
@@ -75,39 +84,47 @@ export default {
         offset: 1,
         limit: 10,
       },
-      duration: '00:00',
       url: '',
+      currentStatus: true,
+      id: '',
     };
   },
   components: {
     SearchEmpty,
-    EasePlayer
+    EasePlayer,
   },
   methods: {
     getList() {
-      if (!this.postJson.keywords) {
-        // this.$message.error('请输入关键字！');
-        return;
-      }
+      if (!this.postJson.keywords) return;
 
       search(this.postJson)
         .then(res => {
           console.log(res);
           this.tableData = res.result.songs;
           this.total = res.result.songCount;
+
+          this.tableData.forEach(item => {
+            item.paused = true;
+          });
         })
         .catch(err => {
           console.log(err);
         });
     },
     async playItem(row) {
+      this.id = row.id;
       try {
-        const response = await song({ id: row.id });
-        this.duration = this.timeToMinutes(row.duration);
-        console.log('response', response);
+        const isAvailable = await check({ id: row.id });
 
-        if (response) {
-          this.url = response.data[0].url
+        if (isAvailable.success) {
+          const response = await song({ id: row.id });
+          console.log('response', response);
+
+          if (response) {
+            this.url = response.data[0].url;
+          }
+        } else {
+          this.$message.error('歌曲不可用！')
         }
       } catch (e) {
         console.log(e);
@@ -115,15 +132,6 @@ export default {
     },
     handleCurrentChange() {
       this.getList();
-    },
-    viewDetail(id) {
-      console.log('id:', id);
-      this.$router.push({
-        name: 'player',
-        query: {
-          id,
-        },
-      });
     },
     timeToMinutes(time) {
       if (!time) return '00:00';
@@ -137,6 +145,18 @@ export default {
       minute = m < 10 ? '0' + m : m;
 
       return `${minute}:${second}`;
+    },
+  },
+  watch: {
+    // 监听当前播放器状态，更新列表播放按钮
+    currentStatus(val) {
+      console.log('val', val);
+      this.tableData.forEach(item => {
+        if (this.id === item.id) {
+          console.log('this.id', this.id);
+          item.paused = val;
+        }
+      });
     },
   },
 };

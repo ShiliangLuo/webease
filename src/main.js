@@ -5,6 +5,7 @@ import createStore from './store';
 import { sync } from 'vuex-router-sync';
 
 import './element';
+import '@/assets/icons/iconfont.css';
 
 Vue.config.productionTip = false;
 
