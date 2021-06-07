@@ -10,6 +10,7 @@
   .player-main {
     width: 1200px;
     margin: 0 auto;
+    position: relative;
   }
 
   .player-btns {
@@ -88,7 +89,7 @@
 
   .player-volume {
     position: absolute;
-    top: 76px;
+    top: 56px;
     left: 50%;
     margin-left: 290px;
 
@@ -147,6 +148,91 @@
         position: absolute;
         left: -3px;
         top: -3px;
+      }
+    }
+  }
+
+  .player-list {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    .collapse-btn {
+      font-size: 20px;
+      color: #C0C4CC;
+    }
+
+    .player-list-container {
+      box-sizing: border-box;
+      width: 300px;
+      position: fixed;
+      top: 0;
+      bottom: 116px;
+      right: 0;
+      // background: #1d1d1d;
+      background: rgba(0, 0, 0, .5);
+      transition: right ease .3s;
+      padding: 30px 20px;
+
+      .player-list-clear {
+        line-height: 22px;
+        text-align: right;
+        color: #fff;
+        margin-bottom: 10px;
+        font-size: 14px;
+        span {
+          cursor: pointer;
+        }
+      }
+
+      ul {
+        height: calc(100% - 32px);
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        overflow-y: auto;
+        li {
+          display: flex;
+          margin-bottom: 20px;
+          font-size: 14px;
+          line-height: 22px;
+          cursor: default;
+          user-select: none;
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          &.playing {
+            .list-title {
+              color: #f76669;
+            }
+            .list-time {
+              display: none;
+            }
+            .list-icon {
+              display: block;
+            }
+          }
+        }
+        .list-title {
+          width: 80%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: #d8d8d8;
+        }
+        .list-time {
+          width: 20%;
+          font-size: 12px;
+          color: #8c8c8c;
+          text-align: right;
+        }
+        .list-icon {
+          display: none;
+          width: 20%;
+          font-size: 12px;
+          color: #f76669;
+          text-align: right;
+        }
       }
     }
   }

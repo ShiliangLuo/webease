@@ -1,4 +1,3 @@
-// import Player from './player';
 import './style.less';
 
 const audio = new Audio();
@@ -9,6 +8,8 @@ audio.volume = 0.3;
 function setSource(url, vm) {
   audio.src = url;
   play(paused => (vm.paused = paused), vm);
+  // emit当前播放歌曲
+  vm.$emit('update:current', vm.musicList[vm.currentIndex]);
 }
 
 // audio播放与暂停，并回调出当前状态
@@ -26,8 +27,6 @@ function play(cb, vm) {
 
       if (vm.currentTime === audio.duration) {
         cb && cb(audio.paused);
-        // emit当前播放器状态
-        vm.$emit('update:status', audio.paused);
         clearInterval(timer);
       }
     }, 1000);
@@ -36,8 +35,6 @@ function play(cb, vm) {
   }
 
   cb && cb(audio.paused);
-  // emit当前播放器状态
-  vm.$emit('update:status', audio.paused);
 }
 
 // 设置/获取播放百分比
@@ -49,7 +46,7 @@ function audioCurrentTime(time) {
 
 // 设置音量
 function setVolume(volumn, vm) {
-  vm.volume = audio.volume = volumn;
+  vm.volume = vm.oldVolume = audio.volume = volumn;
 }
 
 // 秒数转mm:ss格式
@@ -70,13 +67,13 @@ const timeToMinutes = time => {
 const EasePlayer = {
   name: 'EasePlayer',
   props: {
-    url: {
-      type: String,
-      default: '',
+    current: {
+      type: Object,
+      default: () => {},
     },
-    status: {
-      type: Boolean,
-      default: true,
+    musicList: {
+      type: Array,
+      default: () => [],
     },
   },
   data() {
@@ -85,13 +82,18 @@ const EasePlayer = {
       paused: true,
       currentTime: 0,
       volume: 0.3,
+      oldVolume: 0.3,
+      collapsed: true,
+      currentIndex: 0,
     };
   },
   created() {
     audio.addEventListener('loadeddata', this.getDuration);
+    audio.addEventListener('ended', this.playNext);
   },
   destroyed() {
     audio.removeEventListener('loadeddata', this.getDuration);
+    audio.removeEventListener('ended', this.playNext);
   },
   computed: {
     getWidth() {
@@ -99,20 +101,37 @@ const EasePlayer = {
     },
   },
   watch: {
-    url: function(val) {
-      setSource(val, this);
+    musicList: function(val) {
+      this.currentIndex = val.length - 1;
+      setSource(val[this.currentIndex].url, this);
     },
   },
   methods: {
     getDuration() {
       this.duration = audio.duration;
     },
+    playNext() {
+      this.musicList.length > 0 &&
+        (this.currentIndex < this.musicList.length - 1
+          ? this.currentIndex++
+          : (this.currentIndex = 0),
+        setSource(this.musicList[this.currentIndex].url, this));
+    },
   },
   render() {
     // 控制按钮
     const controlBtns = (
       <div class="player-btns">
-        <span class="aside-icon">
+        <span
+          class="aside-icon"
+          onClick={() => {
+            this.musicList.length > 0 &&
+              (this.currentIndex > 0
+                ? this.currentIndex--
+                : (this.currentIndex = this.musicList.length - 1),
+              setSource(this.musicList[this.currentIndex].url, this));
+          }}
+        >
           <i class="el-icon-caret-left" />
         </span>
         <span
@@ -127,7 +146,7 @@ const EasePlayer = {
             <i class="el-icon-video-pause" />
           )}
         </span>
-        <span class="aside-icon">
+        <span class="aside-icon" onClick={() => this.playNext()}>
           <i class="el-icon-caret-right" />
         </span>
       </div>
@@ -165,7 +184,9 @@ const EasePlayer = {
         <div
           class="player-volume-icon pointer fl"
           onClick={() =>
-            this.volume !== 0 ? setVolume(0, this) : setVolume(0.3, this)
+            this.volume !== 0
+              ? (this.volume = audio.volume = 0)
+              : setVolume(this.oldVolume, this)
           }
         >
           {this.volume !== 0 ? (
@@ -194,12 +215,57 @@ const EasePlayer = {
       </div>
     );
 
+    // 播放列表
+    const playList = (
+      <div class="player-list">
+        <div
+          class="collapse-btn pointer"
+          onClick={() =>
+            this.collapsed ? (this.collapsed = false) : (this.collapsed = true)
+          }
+        >
+          {this.collapsed ? (
+            <i class="el-icon-s-unfold" />
+          ) : (
+            <i class="el-icon-s-fold" />
+          )}
+        </div>
+
+        <div
+          class="player-list-container"
+          style={{ right: this.collapsed ? '-300px' : 0 }}
+        >
+          <div class="player-list-clear">
+            <span onClick={() => this.$emit('clear-store')}>清空列表</span>
+          </div>
+          <ul>
+            {this.musicList.map((item, index) => {
+              return (
+                <li
+                  class={
+                    this.currentIndex === index && audio.src ? 'playing' : ''
+                  }
+                >
+                  <div class="list-title">{item.name}</div>
+                  <div class="list-time">{item.time}</div>
+                  <div class="list-icon">
+                    <i class="iconfont icon-SOUNDPLUS" />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    );
+
     return (
       <div class="player" ref="playerContainer">
         <div class="player-main">
           {controlBtns}
           {progressBar}
           {volumnBar}
+          {playList}
         </div>
       </div>
     );

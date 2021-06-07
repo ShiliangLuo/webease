@@ -23,7 +23,11 @@
         <el-table-column label="序号" width="60" type="index" />
         <el-table-column prop="name" label="音乐标题" show-overflow-tooltip>
           <template v-slot="record">
-            <span class="pointer" style="color: #7bffed;" @click="playItem(record.row)">
+            <span
+              class="pointer"
+              :style="{ color: record.row.current ? '#f76669' : '#7bffed' }"
+              @click="playItem(record.row)"
+            >
               {{ record.row.name }}
             </span>
             <span class="ft-12" style="margin-left: 10px;">
@@ -38,7 +42,7 @@
             {{ timeToMinutes(record.row.duration) }}
           </template>
         </el-table-column>
-        <el-table-column prop="operation" width="100">
+        <!-- <el-table-column prop="operation" width="100">
           <template v-slot="record">
             <i
               class="el-icon-video-play table-play-btn"
@@ -51,7 +55,7 @@
               @click="playItem(record.row)"
             />
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
 
       <div style="margin-top: 30px;">
@@ -64,7 +68,11 @@
         />
       </div>
     </div>
-    <ease-player :url="url" :status.sync="currentStatus"></ease-player>
+    <ease-player
+      :music-list="list"
+      :current.sync="current"
+      @clear-store="clearStore"
+    ></ease-player>
   </div>
 </template>
 
@@ -72,6 +80,7 @@
 import SearchEmpty from '@/components/SearchEmpty';
 import EasePlayer from '@/components/Player/index';
 import { search, song, check } from '@/api/index';
+import store from 'store';
 
 export default {
   name: 'Home',
@@ -84,14 +93,18 @@ export default {
         offset: 1,
         limit: 10,
       },
-      url: '',
-      currentStatus: true,
+      current: {},
       id: '',
+      list: [],
     };
   },
   components: {
     SearchEmpty,
     EasePlayer,
+  },
+  created() {
+    // 加载本地数据
+    store.get('WEBEASELIST') && (this.list = store.get('WEBEASELIST'));
   },
   methods: {
     getList() {
@@ -104,7 +117,7 @@ export default {
           this.total = res.result.songCount;
 
           this.tableData.forEach(item => {
-            item.paused = true;
+            item.current = false;
           });
         })
         .catch(err => {
@@ -112,7 +125,6 @@ export default {
         });
     },
     async playItem(row) {
-      this.id = row.id;
       try {
         const isAvailable = await check({ id: row.id });
 
@@ -121,14 +133,36 @@ export default {
           console.log('response', response);
 
           if (response) {
-            this.url = response.data[0].url;
+            let name = '';
+            let time = '';
+            this.tableData.forEach(item => {
+              if (item.id === row.id) {
+                name =
+                  item.alias.length > 0
+                    ? `${item.name}/${item.alias[0]}`
+                    : `${item.name}`;
+                time = this.timeToMinutes(item.duration);
+              }
+            });
+
+            this.list.every(item => item.id !== row.id) &&
+              this.list.push({
+                url: response.data[0].url,
+                name,
+                id: row.id,
+                time,
+              });
           }
         } else {
-          this.$message.error('歌曲不可用！')
+          this.$message.error('歌曲不可用！');
         }
       } catch (e) {
         console.log(e);
       }
+    },
+    clearStore() {
+      this.list = [];
+      store.remove('WEBEASELIST');
     },
     handleCurrentChange() {
       this.getList();
@@ -149,12 +183,11 @@ export default {
   },
   watch: {
     // 监听当前播放器状态，更新列表播放按钮
-    currentStatus(val) {
+    current(val) {
       console.log('val', val);
+      // this.tableData = this.tableData.map(item => item.current = item.id === val.id)
       this.tableData.forEach(item => {
-        if (this.id === item.id) {
-          item.paused = val;
-        }
+        item.current = item.id === val.id;
       });
     },
   },
