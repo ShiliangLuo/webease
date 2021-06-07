@@ -1,3 +1,4 @@
+import store from 'store';
 import './style.less';
 
 const audio = new Audio();
@@ -104,6 +105,7 @@ const EasePlayer = {
     musicList: function(val) {
       this.currentIndex = val.length - 1;
       setSource(val[this.currentIndex].url, this);
+      store.set('WEBEASELIST', val);
     },
   },
   methods: {
