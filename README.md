@@ -1,19 +1,18 @@
 # webease
 
-## Project setup
+基于[NeteaseCloudMusicApi](https://binaryify.github.io/NeteaseCloudMusicApi/#/ )项目的web端音乐播放器，服务端渲染
+
+## 安装
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+### 启动
 ```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
+yarn dev
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### 打包
+```
+yarn start
+```
