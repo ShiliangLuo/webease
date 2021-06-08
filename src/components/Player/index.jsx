@@ -104,7 +104,12 @@ const EasePlayer = {
   watch: {
     musicList: function(val) {
       this.currentIndex = val.length - 1;
-      setSource(`https://music.163.com/song/media/outer/url?id=${val[this.currentIndex].id}.mp3`, this);
+      setSource(
+        `https://music.163.com/song/media/outer/url?id=${
+          val[this.currentIndex].id
+        }.mp3`,
+        this
+      );
       store.set('WEBEASELIST', val);
     },
   },
@@ -113,27 +118,37 @@ const EasePlayer = {
       this.duration = audio.duration;
     },
     playNext() {
+      this.currentTime = 0;
       this.musicList.length > 0 &&
         (this.currentIndex < this.musicList.length - 1
           ? this.currentIndex++
           : (this.currentIndex = 0),
-        setSource(`https://music.163.com/song/media/outer/url?id=${this.musicList[this.currentIndex].id}.mp3`, this));
+        setSource(
+          `https://music.163.com/song/media/outer/url?id=${
+            this.musicList[this.currentIndex].id
+          }.mp3`,
+          this
+        ));
+    },
+    playPrev() {
+      this.currentTime = 0;
+      this.musicList.length > 0 &&
+        (this.currentIndex > 0
+          ? this.currentIndex--
+          : (this.currentIndex = this.musicList.length - 1),
+        setSource(
+          `https://music.163.com/song/media/outer/url?id=${
+            this.musicList[this.currentIndex].id
+          }.mp3`,
+          this
+        ));
     },
   },
   render() {
     // 控制按钮
     const controlBtns = (
       <div class="player-btns">
-        <span
-          class="aside-icon"
-          onClick={() => {
-            this.musicList.length > 0 &&
-              (this.currentIndex > 0
-                ? this.currentIndex--
-                : (this.currentIndex = this.musicList.length - 1),
-              setSource(`https://music.163.com/song/media/outer/url?id=${this.musicList[this.currentIndex].id}.mp3`, this));
-          }}
-        >
+        <span class="aside-icon" onClick={() => this.playPrev()}>
           <i class="el-icon-caret-left" />
         </span>
         <span
