@@ -21,7 +21,7 @@ function play(cb, vm) {
     audio.play().catch(e => console.log(e));
 
     // 设置播放时间
-    vm.currentTime = 0;
+    // vm.currentTime = 0;
     timer = setInterval(() => {
       vm.currentTime = audioCurrentTime();
       // console.log('buffered', audio.buffered.end(0));
@@ -104,7 +104,7 @@ const EasePlayer = {
   watch: {
     musicList: function(val) {
       this.currentIndex = val.length - 1;
-      setSource(val[this.currentIndex].url, this);
+      setSource(`https://music.163.com/song/media/outer/url?id=${val[this.currentIndex].id}.mp3`, this);
       store.set('WEBEASELIST', val);
     },
   },
@@ -117,7 +117,7 @@ const EasePlayer = {
         (this.currentIndex < this.musicList.length - 1
           ? this.currentIndex++
           : (this.currentIndex = 0),
-        setSource(this.musicList[this.currentIndex].url, this));
+        setSource(`https://music.163.com/song/media/outer/url?id=${this.musicList[this.currentIndex].id}.mp3`, this));
     },
   },
   render() {
@@ -131,7 +131,7 @@ const EasePlayer = {
               (this.currentIndex > 0
                 ? this.currentIndex--
                 : (this.currentIndex = this.musicList.length - 1),
-              setSource(this.musicList[this.currentIndex].url, this));
+              setSource(`https://music.163.com/song/media/outer/url?id=${this.musicList[this.currentIndex].id}.mp3`, this));
           }}
         >
           <i class="el-icon-caret-left" />
