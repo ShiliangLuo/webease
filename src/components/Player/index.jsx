@@ -25,6 +25,7 @@ function play(cb, vm) {
     timer = setInterval(() => {
       vm.currentTime = audioCurrentTime();
       // console.log('buffered', audio.buffered.end(0));
+      // console.log('ok');
 
       if (vm.currentTime === audio.duration) {
         cb && cb(audio.paused);
@@ -103,6 +104,7 @@ const EasePlayer = {
   },
   watch: {
     musicList: function(val) {
+      if (val.length === 0) return;
       this.currentIndex = val.length - 1;
       setSource(
         `https://music.163.com/song/media/outer/url?id=${
@@ -153,9 +155,18 @@ const EasePlayer = {
         </span>
         <span
           class="play-icon"
-          onClick={() =>
-            audio.src && play(paused => (this.paused = paused), this)
-          }
+          onClick={() => {
+            audio.src
+              ? play(paused => (this.paused = paused), this)
+              : this.musicList.length > 0
+              ? setSource(
+                  `https://music.163.com/song/media/outer/url?id=${
+                    this.musicList[this.currentIndex].id
+                  }.mp3`,
+                  this
+                )
+              : null;
+          }}
         >
           {this.paused ? (
             <i class="el-icon-video-play" />
