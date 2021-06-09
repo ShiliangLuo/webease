@@ -30,7 +30,7 @@ function play(cb, vm) {
       if (audio.volume >= vm.oldVolume) {
         clearInterval(t);
       }
-    }, 200);
+    }, 100);
 
     // 设置播放时间
     timer = setInterval(() => {
@@ -54,7 +54,7 @@ function play(cb, vm) {
         clearInterval(t);
         audio.pause();
       }
-    }, 200);
+    }, 100);
 
     // 直接设置状态，防止点击暂停按钮时，等待一定时间才改变状态
     vm.paused = true;
@@ -116,10 +116,12 @@ const EasePlayer = {
   created() {
     audio.addEventListener('loadeddata', this.getDuration);
     audio.addEventListener('ended', this.playNext);
+    audio.addEventListener('error', this.loadError);
   },
   destroyed() {
     audio.removeEventListener('loadeddata', this.getDuration);
     audio.removeEventListener('ended', this.playNext);
+    audio.removeEventListener('error', this.loadError);
   },
   computed: {
     getWidth() {
@@ -168,6 +170,11 @@ const EasePlayer = {
           }.mp3`,
           this
         ));
+    },
+    // 资源加载错误
+    loadError(e) {
+      console.log('音乐加载错误：', e);
+      this.playNext();
     },
   },
   render() {
