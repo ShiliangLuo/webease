@@ -118,11 +118,6 @@ const EasePlayer = {
     audio.addEventListener('ended', this.playNext);
     audio.addEventListener('error', this.loadError);
   },
-  destroyed() {
-    audio.removeEventListener('loadeddata', this.getDuration);
-    audio.removeEventListener('ended', this.playNext);
-    audio.removeEventListener('error', this.loadError);
-  },
   computed: {
     getWidth() {
       return this.duration ? (this.currentTime / this.duration) * 400 : 0;
@@ -282,9 +277,7 @@ const EasePlayer = {
       <div class="player-list">
         <div
           class="collapse-btn pointer"
-          onClick={() =>
-            this.collapsed ? (this.collapsed = false) : (this.collapsed = true)
-          }
+          onClick={() => (this.collapsed = !this.collapsed)}
         >
           {this.collapsed ? (
             <i class="el-icon-s-unfold" />
