@@ -195,6 +195,7 @@
           margin-bottom: 20px;
           font-size: 14px;
           line-height: 22px;
+          height: 22px;
           cursor: default;
           user-select: none;
           &:last-child {
@@ -210,6 +211,18 @@
             }
             .list-icon {
               display: block;
+            }
+          }
+
+          &:hover {
+            .list-time {
+              display: none;
+            }
+            .list-delete {
+              display: block;
+            }
+            .list-icon {
+              display: none;
             }
           }
         }
@@ -232,6 +245,16 @@
           font-size: 12px;
           color: #f76669;
           text-align: right;
+        }
+        .list-delete {
+          display: none;
+          width: 20%;
+          font-size: 14px;
+          color: #f76669;
+          text-align: right;
+          i {
+            cursor: pointer;
+          }
         }
       }
     }

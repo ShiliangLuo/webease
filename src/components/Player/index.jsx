@@ -3,6 +3,7 @@ import './style.less';
 
 const audio = new Audio();
 let timer = null;
+let t = null;
 audio.volume = 0.3;
 
 // 设置audio的src并开始播放
@@ -15,28 +16,51 @@ function setSource(url, vm) {
 
 // audio播放与暂停，并回调出当前状态
 function play(cb, vm) {
+  // 防止连续点击创建过多定时器，也可以用防抖
   clearInterval(timer);
+  clearInterval(t);
 
   if (audio.paused) {
     audio.play().catch(e => console.log(e));
 
+    // 播放时音量淡入
+    audio.volume = 0;
+    t = setInterval(() => {
+      audio.volume += 0.05;
+      if (audio.volume >= vm.oldVolume) {
+        clearInterval(t);
+      }
+    }, 200);
+
     // 设置播放时间
-    // vm.currentTime = 0;
     timer = setInterval(() => {
       vm.currentTime = audioCurrentTime();
-      // console.log('buffered', audio.buffered.end(0));
-      // console.log('ok');
-
       if (vm.currentTime === audio.duration) {
         cb && cb(audio.paused);
         clearInterval(timer);
       }
     }, 1000);
+
+    // 回调出状态
+    cb && cb(audio.paused);
   } else {
-    audio.pause();
+    // 暂停时音量淡出
+    let v = audio.volume;
+    t = setInterval(() => {
+      v -= 0.05;
+      if (v > 0) {
+        audio.volume = v;
+      } else {
+        clearInterval(t);
+        audio.pause();
+      }
+    }, 200);
+
+    // 直接设置状态，防止点击暂停按钮时，等待一定时间才改变状态
+    vm.paused = true;
   }
 
-  cb && cb(audio.paused);
+  // cb && cb(audio.paused);
 }
 
 // 设置/获取播放百分比
@@ -104,6 +128,7 @@ const EasePlayer = {
   },
   watch: {
     musicList: function(val) {
+      store.set('WEBEASELIST', val);
       if (val.length === 0) return;
       this.currentIndex = val.length - 1;
       setSource(
@@ -112,7 +137,6 @@ const EasePlayer = {
         }.mp3`,
         this
       );
-      store.set('WEBEASELIST', val);
     },
   },
   methods: {
@@ -227,7 +251,10 @@ const EasePlayer = {
         <div class="player-volume-progress fl">
           <div
             class="player-volume-progress-bar"
-            onClick={e => setVolume(e.offsetX / 100, this)}
+            onClick={e =>
+              e.target.nodeName.toLowerCase() === 'div' &&
+              setVolume(e.offsetX / 100, this)
+            }
           >
             <div
               class="player-volume-progress-al"
@@ -278,6 +305,12 @@ const EasePlayer = {
                   <div class="list-time">{item.time}</div>
                   <div class="list-icon">
                     <i class="iconfont icon-SOUNDPLUS" />
+                  </div>
+                  <div class="list-delete">
+                    <i
+                      class="el-icon-circle-close"
+                      onClick={() => this.$emit('clear-item', item.id)}
+                    />
                   </div>
                 </li>
               );
