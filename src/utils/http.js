@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const service = axios.create({
-  baseURL: process.env.NODE_ENE === 'development' ? '/api' : 'http://localhost:3000',
+  baseURL: process.env.NODE_ENV === 'development' ? '/api' : 'http://localhost:3000',
   timeout: 20000
 });
 
@@ -24,7 +24,7 @@ service.interceptors.request.use(config => {
 
 // 响应拦截器
 service.interceptors.response.use(response => {
-  // console.log('config', config);
+  // console.log('response', response);
   return response.data;
 }, errHandler);
 

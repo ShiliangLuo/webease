@@ -5,34 +5,36 @@ const path = require('path');
 const bodyParser = require('body-parser');
 // const koaStatic = require('koa-static');
 const request = require('./util/request');
-const cache = require('apicache').middleware;
+const cache = require('./util/apicache').middleware;
+const { cookieToJson } = require('./util/index');
 
 const app = express();
 const resolve = file => path.resolve(__dirname, file);
 
-// CORS
+// CORS & Preflight request
 app.use((req, res, next) => {
   if (req.path !== '/' && !req.path.includes('.')) {
-    res.header({
+    res.set({
       'Access-Control-Allow-Credentials': true,
       'Access-Control-Allow-Origin': req.headers.origin || '*',
-      'Access-Control-Allow-Headers': 'X-Requested-With',
+      'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
       'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS',
       'Content-Type': 'application/json; charset=utf-8',
     });
   }
-  next();
+  req.method === 'OPTIONS' ? res.status(204).end() : next();
 });
 
 // cookie parser
 app.use((req, res, next) => {
-  (req.cookies = {}),
-    (req.headers.cookie || '').split(/\s*;\s*/).forEach(pair => {
-      let crack = pair.indexOf('=');
-      if (crack < 1 || crack == pair.length - 1) return;
-      req.cookies[decodeURIComponent(pair.slice(0, crack).replace(/%/g, '%25')).trim()] =
-        decodeURIComponent(pair.slice(crack + 1).replace(/%/g, '%25')).trim();
-    });
+  req.cookies = {};
+  (req.headers.cookie || '').split(/\s*;\s*/).forEach(pair => {
+    let crack = pair.indexOf('=');
+    if (crack < 1 || crack == pair.length - 1) return;
+    req.cookies[
+      decodeURIComponent(pair.slice(0, crack).replace(/%/g, '%25')).trim()
+    ] = decodeURIComponent(pair.slice(crack + 1).replace(/%/g, '%25')).trim();
+  });
   next();
 });
 
@@ -40,12 +42,11 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// static
+app.use(express.static(resolve('../dist/client')));
+
 // cache
 app.use(cache('2 minutes', (req, res) => res.statusCode === 200));
-
-// 开放dist目录
-// app.use(koaStatic(resolve('../dist/client')));
-app.use(express.static(resolve('../dist/client')));
 
 // router
 const special = {
@@ -57,7 +58,7 @@ const special = {
 fs.readdirSync(path.join(__dirname, './module'))
   .reverse()
   .forEach(file => {
-    if (!/\.js$/i.test(file)) return;
+    if (!file.endsWith('.js')) return;
     let route =
       file in special
         ? special[file]
@@ -65,9 +66,19 @@ fs.readdirSync(path.join(__dirname, './module'))
     let question = require(path.join(__dirname, './module', file));
 
     app.use(route, (req, res) => {
-      let query = Object.assign({}, req.query, req.body, {
-        cookie: req.cookies,
+      [req.query, req.body].forEach(item => {
+        if (typeof item.cookie === 'string') {
+          item.cookie = cookieToJson(decodeURIComponent(item.cookie));
+        }
       });
+      let query = Object.assign(
+        {},
+        { cookie: req.cookies },
+        req.query,
+        req.body,
+        req.files
+      );
+
       question(query, request)
         .then(answer => {
           console.log('[OK]', decodeURIComponent(req.originalUrl));
@@ -75,7 +86,10 @@ fs.readdirSync(path.join(__dirname, './module'))
           res.status(answer.status).send(answer.body);
         })
         .catch(answer => {
-          console.log('[ERR]', decodeURIComponent(req.originalUrl));
+          console.log('[ERR]', decodeURIComponent(req.originalUrl), {
+            status: answer.status,
+            body: answer.body,
+          });
           if (answer.body.code == '301') answer.body.msg = '需要登录';
           res.append('Set-Cookie', answer.cookie);
           res.status(answer.status).send(answer.body);
