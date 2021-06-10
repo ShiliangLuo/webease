@@ -1,6 +1,6 @@
 # webease
 
-基于[NeteaseCloudMusicApi](https://binaryify.github.io/NeteaseCloudMusicApi/#/ )项目的web端音乐播放器，服务端渲染
+基于[NeteaseCloudMusicApi](https://binaryify.github.io/NeteaseCloudMusicApi/#/ )项目的HTML5音乐播放器，服务端渲染
 
 ## 安装
 ```

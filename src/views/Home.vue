@@ -7,7 +7,7 @@
             placeholder="请输入关键字搜索"
             suffix-icon="el-icon-search"
             v-model="postJson.keywords"
-            @change="getList"
+            @change="searchMusic"
           />
         </el-col>
       </el-row>
@@ -42,20 +42,6 @@
             {{ timeToMinutes(record.row.duration) }}
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="operation" width="100">
-          <template v-slot="record">
-            <i
-              class="el-icon-video-play table-play-btn"
-              v-if="currentStatus"
-              @click="playItem(record.row)"
-            />
-            <i
-              class="el-icon-video-pause table-play-btn"
-              v-else
-              @click="playItem(record.row)"
-            />
-          </template>
-        </el-table-column> -->
       </el-table>
 
       <div style="margin-top: 30px;">
@@ -69,17 +55,19 @@
       </div>
     </div>
     <ease-player
+      ref="player"
       :music-list="list"
       :current.sync="current"
       @clear-store="clearStore"
-    ></ease-player>
+      @clear-item="clearItem"
+    />
   </div>
 </template>
 
 <script>
 import SearchEmpty from '@/components/SearchEmpty';
 import EasePlayer from '@/components/Player/index';
-import { search, song, check } from '@/api/index';
+import { search, song, check, lyric } from '@/api/index';
 import store from 'store';
 
 export default {
@@ -107,9 +95,12 @@ export default {
     store.get('WEBEASELIST') && (this.list = store.get('WEBEASELIST'));
   },
   methods: {
-    getList() {
+    searchMusic() {
       if (!this.postJson.keywords) return;
-
+      this.postJson.offset = 1;
+      this.getList();
+    },
+    getList() {
       search(this.postJson)
         .then(res => {
           console.log(res);
@@ -129,8 +120,10 @@ export default {
         const isAvailable = await check({ id: row.id });
 
         if (isAvailable.success) {
-          const response = await song({ id: row.id });
-          console.log('response', response);
+          const [response, lyrics] = await Promise.all([
+            song({ id: row.id }),
+            lyric({ id: row.id }),
+          ]);
 
           if (response) {
             let name = '';
@@ -164,6 +157,9 @@ export default {
       this.list = [];
       store.remove('WEBEASELIST');
     },
+    clearItem(id) {
+      this.list = this.list.filter(item => item.id !== id);
+    },
     handleCurrentChange() {
       this.getList();
     },
@@ -184,7 +180,6 @@ export default {
   watch: {
     // 监听当前播放器状态，更新列表播放按钮
     current(val) {
-      console.log('val', val);
       // this.tableData = this.tableData.map(item => item.current = item.id === val.id)
       this.tableData.forEach(item => {
         item.current = item.id === val.id;
