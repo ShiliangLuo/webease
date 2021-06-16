@@ -47,7 +47,7 @@
       <div style="margin-top: 30px;">
         <el-pagination
           @current-change="handleCurrentChange"
-          :current-page.sync="postJson.offset"
+          v-model:currentPage="postJson.offset"
           :page-size="10"
           layout="total, prev, pager, next"
           :total="total"
@@ -57,7 +57,7 @@
     <ease-player
       ref="player"
       :music-list="list"
-      :current.sync="current"
+      v-model:current="current"
       @clear-store="clearStore"
       @clear-item="clearItem"
     />

@@ -33,12 +33,12 @@
 
   // table样式
   .el-input {
-    /deep/.el-input__inner {
+    :deep(.el-input__inner) {
       background: none;
       color: #fff;
     }
   }
-  /deep/.el-table {
+  :deep(.el-table) {
     background: none;
     color: #fff;
     thead {
@@ -56,7 +56,7 @@
     }
   }
 
-  /deep/ .el-pagination {
+  :deep(.el-pagination) {
     .el-pagination__total {
       color: #fff;
     }

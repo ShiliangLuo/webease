@@ -43,7 +43,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // static
-app.use(express.static(resolve('../dist/client')));
+// app.use(express.static(resolve('../dist/client')));
 
 // cache
 app.use(cache('2 minutes', (req, res) => res.statusCode === 200));

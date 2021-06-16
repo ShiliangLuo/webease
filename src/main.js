@@ -1,26 +1,22 @@
-import Vue from 'vue';
+import { createApp } from 'vue';
 import App from './App.vue';
-import createRouter from './router';
-import createStore from './store';
-import { sync } from 'vuex-router-sync';
+import router from './router';
+import store from './store';
 
-import './element';
+import { components, plugins } from './element';
 import '@/assets/icons/iconfont.css';
 
-Vue.config.productionTip = false;
+const app = createApp(App);
 
-export default function createApp() {
-  const router = createRouter();
-  const store = createStore();
+components.forEach(component => {
+  app.component(component.name, component);
+});
 
-  // 同步路由状态(route state)到 store
-  sync(store, router);
+plugins.forEach(plugin => {
+  app.use(plugin);
+});
 
-  const app = new Vue({
-    router,
-    store,
-    render: h => h(App),
-  });
-
-  return { app, router, store };
-}
+app
+  .use(router)
+  .use(store)
+  .mount('#app');
