@@ -114,6 +114,7 @@ const EasePlayer = defineComponent({
               if (this.currentIndex === index) return;
 
               this.currentIndex = index;
+              this.currentTime = 0;
               this.play(
                 `https://music.163.com/song/media/outer/url?id=${id}.mp3`
               );

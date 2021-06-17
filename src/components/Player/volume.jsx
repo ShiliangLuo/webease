@@ -1,10 +1,21 @@
-const { defineComponent, toRefs } = require('vue');
+import { defineComponent, onMounted, ref, toRefs } from 'vue';
+import { useDrag } from './useDrag';
 
 const Volume = defineComponent({
   props: ['volume'],
   emits: ['click', 'change'],
   setup(props, { emit }) {
     const { volume } = toRefs(props);
+    const volumeBar = ref(null);
+
+    // 鼠标拖动
+    const moveHandler = left => {
+      if (left >= 100) left = 100;
+      
+      emit('change', left / 100)
+    };
+
+    onMounted(() => useDrag(volumeBar.value, moveHandler));
 
     return () => (
       <div class="player-volume">
@@ -34,6 +45,7 @@ const Volume = defineComponent({
               <span
                 class="player-volume-progress-dot"
                 style={{ left: volume.value * 100 - 3 + 'px' }}
+                ref={volumeBar}
               ></span>
             </div>
           </div>
