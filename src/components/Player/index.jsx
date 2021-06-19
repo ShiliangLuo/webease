@@ -5,6 +5,7 @@ import Btns from './btns';
 import Progress from './progress';
 import Volume from './volume';
 import List from './list';
+import Lyric from './lyric';
 import './style.less';
 
 const audio = new Audio();
@@ -106,10 +107,14 @@ const EasePlayer = defineComponent({
             currentIndex={this.currentIndex}
             source={audio.src}
             onClick={(id, index) => {
-              !audio.src &&
+              if (!audio.src) {
                 this.play(
                   `https://music.163.com/song/media/outer/url?id=${id}.mp3`
                 );
+                this.currentIndex = index;
+
+                return;
+              }
 
               if (this.currentIndex === index) return;
 
@@ -123,6 +128,8 @@ const EasePlayer = defineComponent({
             onClearStore={() => this.$emit('clear-store')}
             onClearItem={id => this.$emit('clear-item', id)}
           />
+
+          <Lyric data={this.musicList[this.currentIndex].lyric} audio={audio} />
         </div>
       </div>
     );

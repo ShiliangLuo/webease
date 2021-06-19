@@ -57,7 +57,6 @@
     <ease-player
       ref="player"
       :music-list="list"
-      v-model:current="current"
       @clear-store="clearStore"
       @clear-item="clearItem"
     />
@@ -144,6 +143,7 @@ export default {
                 name,
                 id: row.id,
                 time,
+                lyric: lyrics.lrc.lyric
               });
           }
         } else {

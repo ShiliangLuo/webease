@@ -81,6 +81,7 @@ export function usePlay(state, audio) {
     }
   }
 
+  // 上一首、下一首
   function switchMusic(type) {
     if (state.length === 0) return;
 

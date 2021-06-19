@@ -20,7 +20,7 @@ export function useDrag(el, movecallback, upcallback) {
     let moveX = e.clientX;
     left = moveX - axisX + width;
 
-    if (left <= 0) left = 0;
+    if (left <= 0) return movecallback(0);
 
     movecallback(left);
   }
