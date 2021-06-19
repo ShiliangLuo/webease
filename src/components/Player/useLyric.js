@@ -1,4 +1,6 @@
 export function useLyric(state) {
+  if (!state.data) return;
+  
   state.lyricList = [];
   state.currentLine = 0;
   // 使用换行符\n拆分歌词
