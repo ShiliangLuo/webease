@@ -55,12 +55,19 @@ const EasePlayer = defineComponent({
       deep: true,
     });
 
+    const lyric = computed(() =>
+      musicList.value && musicList.value.length > 0
+        ? musicList.value[options.currentIndex].lyric
+        : ''
+    );
+
     return {
       ...toRefs(options),
       audioCurrentTime,
       play,
       setVolume,
       switchMusic,
+      lyric,
     };
   },
   render() {
@@ -129,7 +136,7 @@ const EasePlayer = defineComponent({
             onClearItem={id => this.$emit('clear-item', id)}
           />
 
-          <Lyric data={this.musicList[this.currentIndex].lyric} audio={audio} />
+          <Lyric data={this.lyric} audio={audio} />
         </div>
       </div>
     );
