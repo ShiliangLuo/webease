@@ -24,20 +24,20 @@ const Lyric = defineComponent({
     );
 
     return () => (
-      <div class="player-lyric-container">
+      <div className="player-lyric-container">
         <div
-          class={['player-lyric-switch', options.show ? 'on' : null]}
+          className={`player-lyric-switch ${options.show ? 'on' : ''}`}
           onClick={() => (options.show = !options.show)}
         >
           词
         </div>
 
         <div
-          class="player-lyric"
+          className="player-lyric"
           style={{ display: options.show ? 'block' : 'none' }}
         >
           <div
-            class="player-lyric-list"
+            className="player-lyric-list"
             style={{
               transform: `translateY(${-40 * options.currentLine + 30}px)`,
             }}
@@ -45,7 +45,9 @@ const Lyric = defineComponent({
             <ul>
               {options.lyricList.map((item, index) => {
                 return (
-                  <li class={{ current: index === options.currentLine }}>
+                  <li
+                    className={index === options.currentLine ? 'current' : null}
+                  >
                     {item.content}
                   </li>
                 );

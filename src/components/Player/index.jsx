@@ -72,8 +72,8 @@ const EasePlayer = defineComponent({
   },
   render() {
     return (
-      <div class="player">
-        <div class="player-main">
+      <div className="player">
+        <div className="player-main">
           <Btns
             paused={this.paused}
             onPlay={() => {

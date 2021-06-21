@@ -7,45 +7,45 @@ const List = defineComponent({
     const { data, collapsed, currentIndex, source } = toRefs(props);
 
     return () => (
-      <div class="player-list">
-        <div class="collapse-btn pointer" onClick={() => emit('show')}>
+      <div className="player-list">
+        <div className="collapse-btn pointer" onClick={() => emit('show')}>
           {collapsed.value ? (
-            <i class="el-icon-s-unfold" />
+            <i className="el-icon-s-unfold" />
           ) : (
-            <i class="el-icon-s-fold" />
+            <i className="el-icon-s-fold" />
           )}
         </div>
 
         <div
-          class="player-list-container"
+          className="player-list-container"
           style={{ right: collapsed.value ? '-300px' : 0 }}
         >
-          <div class="player-list-clear">
+          <div className="player-list-clear">
             <span onClick={() => emit('clear-store')}>清空列表</span>
           </div>
           <ul>
             {data.value.map((item, index) => {
               return (
                 <li
-                  class={
+                  className={
                     currentIndex.value === index && source.value
                       ? 'playing'
                       : ''
                   }
                 >
                   <div
-                    class="list-title"
+                    className="list-title"
                     onClick={() => emit('click', item.id, index)}
                   >
                     {item.name}
                   </div>
-                  <div class="list-time">{item.time}</div>
-                  <div class="list-icon">
-                    <i class="iconfont icon-SOUNDPLUS" />
+                  <div className="list-time">{item.time}</div>
+                  <div className="list-icon">
+                    <i className="iconfont icon-SOUNDPLUS" />
                   </div>
-                  <div class="list-delete">
+                  <div className="list-delete">
                     <i
-                      class="el-icon-circle-close"
+                      className="el-icon-circle-close"
                       onClick={() => emit('clear-item', item.id)}
                     />
                   </div>

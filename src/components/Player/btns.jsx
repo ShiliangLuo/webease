@@ -7,19 +7,19 @@ const Btns = defineComponent({
     const { paused } = toRefs(props);
 
     return () => (
-      <div class="player-btns">
-        <span class="aside-icon" onClick={() => emit('change', 'preview')}>
-          <i class="el-icon-caret-left" />
+      <div className="player-btns">
+        <span className="aside-icon" onClick={() => emit('change', 'preview')}>
+          <i className="el-icon-caret-left" />
         </span>
-        <span class="play-icon" onClick={() => emit('play', paused.value)}>
+        <span className="play-icon" onClick={() => emit('play', paused.value)}>
           {paused.value ? (
-            <i class="el-icon-video-play" />
+            <i className="el-icon-video-play" />
           ) : (
-            <i class="el-icon-video-pause" />
+            <i className="el-icon-video-pause" />
           )}
         </span>
-        <span class="aside-icon" onClick={() => emit('change', 'next')}>
-          <i class="el-icon-caret-right" />
+        <span className="aside-icon" onClick={() => emit('change', 'next')}>
+          <i className="el-icon-caret-right" />
         </span>
       </div>
     );

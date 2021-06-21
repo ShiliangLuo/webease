@@ -50,27 +50,27 @@ const Progress = defineComponent({
     onMounted(() => useDrag(progressBar.value, moveHandler, upHandler));
 
     return () => (
-      <div class="player-progress">
-        <div class="time">{timeToMinutes(currentTime.value)}</div>
+      <div className="player-progress">
+        <div className="time">{timeToMinutes(currentTime.value)}</div>
         <div
-          class="player-progress-bar"
+          className="player-progress-bar"
           onClick={e =>
             e.target.nodeName.toLowerCase() === 'div' &&
             emit('change', (e.offsetX / 400) * duration.value)
           }
         >
           <div
-            class="player-progress-al"
+            className="player-progress-al"
             style={{ width: getWidth.value + 'px' }}
           >
             <span
-              class="player-progress-dot"
+              className="player-progress-dot"
               style={{ left: getWidth.value - 3 + 'px' }}
               ref={progressBar}
             ></span>
           </div>
         </div>
-        <div class="time">{timeToMinutes(duration.value)}</div>
+        <div className="time">{timeToMinutes(duration.value)}</div>
       </div>
     );
   },

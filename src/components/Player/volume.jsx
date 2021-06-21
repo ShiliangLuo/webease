@@ -18,32 +18,32 @@ const Volume = defineComponent({
     onMounted(() => useDrag(volumeBar.value, moveHandler));
 
     return () => (
-      <div class="player-volume">
+      <div className="player-volume">
         <div
-          class="player-volume-icon pointer fl"
+          className="player-volume-icon pointer fl"
           onClick={() => emit('click')}
         >
           {volume.value !== 0 ? (
-            <i class="iconfont icon-SOUNDPLUS" />
+            <i className="iconfont icon-SOUNDPLUS" />
           ) : (
-            <i class="iconfont icon-soundminus" />
+            <i className="iconfont icon-soundminus" />
           )}
         </div>
 
-        <div class="player-volume-progress fl">
+        <div className="player-volume-progress fl">
           <div
-            class="player-volume-progress-bar"
+            className="player-volume-progress-bar"
             onClick={e =>
               e.target.nodeName.toLowerCase() === 'div' &&
               emit('change', e.offsetX / 100)
             }
           >
             <div
-              class="player-volume-progress-al"
+              className="player-volume-progress-al"
               style={{ width: volume.value * 100 + 'px' }}
             >
               <span
-                class="player-volume-progress-dot"
+                className="player-volume-progress-dot"
                 style={{ left: volume.value * 100 - 3 + 'px' }}
                 ref={volumeBar}
               ></span>
