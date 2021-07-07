@@ -1,7 +1,7 @@
-const path = require('path');
+const path = require('path')
 
 function resolve(dir) {
-  return path.join(__dirname, dir);
+  return path.join(__dirname, dir)
 }
 
 const vueConfig = {
@@ -12,7 +12,7 @@ const vueConfig = {
   indexPath: 'index.html',
   pages: {
     index: {
-      entry: 'src/main.js',
+      entry: 'src/main.ts',
       template: 'public/index.html',
       filename: 'index.html',
       title: 'webease',
@@ -30,9 +30,9 @@ const vueConfig = {
     plugins: [],
   },
   chainWebpack: config => {
-    config.resolve.alias.set('@$', resolve('src'));
-    config.plugins.delete('prefetch-index');
-    config.plugins.delete('preload-index');
+    config.resolve.alias.set('@$', resolve('src'))
+    config.plugins.delete('prefetch-index')
+    config.plugins.delete('preload-index')
   },
   devServer: {
     // 环境配置
@@ -52,6 +52,6 @@ const vueConfig = {
       },
     },
   },
-};
+}
 
-module.exports = vueConfig;
+module.exports = vueConfig

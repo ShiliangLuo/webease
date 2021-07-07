@@ -1,43 +1,52 @@
-import { defineComponent, reactive, toRefs, watch } from 'vue';
-import { useLyric } from './useLyric';
+import { defineComponent, PropType, reactive, toRefs, watch } from 'vue'
+import { useLyric } from './useLyric'
 
 const Lyric = defineComponent({
-  props: ['data', 'audio'],
+  props: {
+    data: {
+      type: String as PropType<string>,
+      required: true,
+    },
+    audio: {
+      type: Object as PropType<HTMLAudioElement>,
+      required: true,
+    },
+  },
   setup(props) {
-    const { data, audio } = toRefs(props);
+    const { data, audio } = toRefs(props)
     const options = reactive({
       currentLine: 0,
-      lyricList: [],
+      lyricList: [] as any[],
       show: false,
       data,
       audio,
-    });
+    })
 
     watch(
       data,
       () => {
-        useLyric(options);
+        useLyric(options)
       },
       {
         immediate: true,
-      }
-    );
+      },
+    )
 
     return () => (
-      <div className="player-lyric-container">
+      <div class="player-lyric-container">
         <div
-          className={`player-lyric-switch ${options.show ? 'on' : ''}`}
+          class={`player-lyric-switch ${options.show ? 'on' : ''}`}
           onClick={() => (options.show = !options.show)}
         >
           词
         </div>
 
         <div
-          className="player-lyric"
+          class="player-lyric"
           style={{ display: options.show ? 'block' : 'none' }}
         >
           <div
-            className="player-lyric-list"
+            class="player-lyric-list"
             style={{
               transform: `translateY(${-40 * options.currentLine + 30}px)`,
             }}
@@ -45,19 +54,17 @@ const Lyric = defineComponent({
             <ul>
               {options.lyricList.map((item, index) => {
                 return (
-                  <li
-                    className={index === options.currentLine ? 'current' : null}
-                  >
+                  <li class={index === options.currentLine ? 'current' : null}>
                     {item.content}
                   </li>
-                );
+                )
               })}
             </ul>
           </div>
         </div>
       </div>
-    );
+    )
   },
-});
+})
 
-export default Lyric;
+export default Lyric
