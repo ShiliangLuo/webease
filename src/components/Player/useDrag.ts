@@ -11,16 +11,19 @@ export function useDrag(
   let width = 0
 
   // 鼠标按下
-  function mousedownHandler(e: any) {
+  function mousedownHandler(e: MouseEvent) {
+    const target = e.target as HTMLElement
+    const parentNode = target.parentNode as HTMLElement
+
     axisX = e.clientX
-    width = parseFloat(e.target.parentNode.style.width)
+    width = parseFloat(parentNode.style.width)
 
     document.addEventListener('mousemove', mousemoveHandler)
     document.addEventListener('mouseup', mouseupHandler)
   }
 
   // 鼠标移动
-  function mousemoveHandler(e: any) {
+  function mousemoveHandler(e: MouseEvent) {
     let moveX = e.clientX
     left = moveX - axisX + width
 
@@ -30,7 +33,7 @@ export function useDrag(
   }
 
   // 鼠标松开
-  function mouseupHandler(e: any) {
+  function mouseupHandler() {
     document.removeEventListener('mousemove', mousemoveHandler)
     document.removeEventListener('mouseup', mouseupHandler)
 

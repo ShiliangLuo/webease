@@ -1,14 +1,16 @@
-export function useLyric(state: any) {
+import { LyricState, LyricItem } from '../../types'
+
+export function useLyric(state: LyricState, audio: HTMLAudioElement) {
   if (!state.data) return
 
-  state.lyricList = []
+  state.lyricList = [] as LyricItem[]
   state.currentLine = 0
   // 使用换行符\n拆分歌词
   const lyricArr = state.data.split('\n')
 
-  state.audio.addEventListener('timeupdate', setLyric)
+  audio.addEventListener('timeupdate', setLyric)
 
-  lyricArr.forEach((item: any) => {
+  lyricArr.forEach(item => {
     if (item.replace(/\[(.+?)\]/g, '')) {
       state.lyricList.push({
         time: lyricTimelineToSecond(item),
@@ -32,8 +34,7 @@ export function useLyric(state: any) {
     if (!state.lyricList[state.currentLine]) return
 
     if (
-      parseFloat(state.lyricList[state.currentLine].time) <=
-      state.audio.currentTime.toFixed(3)
+      parseFloat(state.lyricList[state.currentLine].time) <= audio.currentTime
     ) {
       state.currentLine++
 
@@ -43,8 +44,7 @@ export function useLyric(state: any) {
     }
 
     if (
-      parseFloat(state.lyricList[state.currentLine].time) >
-      state.audio.currentTime.toFixed(3)
+      parseFloat(state.lyricList[state.currentLine].time) > audio.currentTime
     ) {
       state.currentLine--
 

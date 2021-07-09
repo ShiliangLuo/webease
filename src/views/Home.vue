@@ -23,11 +23,7 @@
         <el-table-column label="序号" width="60" type="index" />
         <el-table-column prop="name" label="音乐标题" show-overflow-tooltip>
           <template v-slot="record">
-            <span
-              class="pointer"
-              :style="{ color: record.row.current ? '#f76669' : '#7bffed' }"
-              @click="playItem(record.row)"
-            >
+            <span class="pointer" @click="playItem(record.row)">
               {{ record.row.name }}
             </span>
             <span class="ft-12" style="margin-left: 10px;">
@@ -54,12 +50,7 @@
         />
       </div>
     </div>
-    <ease-player
-      ref="player"
-      :music-list="list"
-      @clear-store="clearStore"
-      @clear-item="clearItem"
-    />
+    <ease-player :music-list="list" @clear="clear" />
   </div>
 </template>
 
@@ -81,7 +72,6 @@ export default defineComponent({
         offset: 1,
         limit: 10,
       },
-      current: {},
       id: '',
       list: [] as any[],
     }
@@ -106,10 +96,6 @@ export default defineComponent({
           console.log(res)
           this.tableData = res.result.songs
           this.total = res.result.songCount
-
-          this.tableData.forEach((item: any) => {
-            item.current = false
-          })
         })
         .catch(err => {
           console.log(err)
@@ -152,12 +138,13 @@ export default defineComponent({
         console.log(e)
       }
     },
-    clearStore() {
-      this.list = []
-      store.remove('WEBEASELIST')
-    },
-    clearItem(id: string | number) {
-      this.list = this.list.filter((item: any) => item.id !== id)
+    clear(id?: number) {
+      if (id) {
+        this.list = this.list.filter((item: any) => item.id !== id)
+      } else {
+        this.list = []
+        store.remove('WEBEASELIST')
+      }
     },
     handleCurrentChange() {
       this.getList()
@@ -174,15 +161,6 @@ export default defineComponent({
       minute = m < 10 ? '0' + m : m
 
       return `${minute}:${second}`
-    },
-  },
-  watch: {
-    // 监听当前播放器状态，更新列表播放按钮
-    current(val) {
-      // this.tableData = this.tableData.map(item => item.current = item.id === val.id)
-      this.tableData.forEach((item: any) => {
-        item.current = item.id === val.id
-      })
     },
   },
 })

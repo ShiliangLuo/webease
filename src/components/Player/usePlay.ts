@@ -1,14 +1,10 @@
-export function usePlay(state: any, audio: HTMLAudioElement) {
+import { PlayerState } from '../../types'
+
+export function usePlay(state: PlayerState, audio: HTMLAudioElement) {
   let timer: any
   let t: any
 
-  // 设置初始音量
-  audio.volume = 0.3
-
   // 设置audio的三个事件监听
-  audio.addEventListener('loadeddata', () => {
-    state.duration = audio.duration
-  })
   audio.addEventListener('ended', () => {
     switchMusic('next')
   })
@@ -16,21 +12,9 @@ export function usePlay(state: any, audio: HTMLAudioElement) {
     console.log('播放错误：', err)
   })
 
-  // 设置音量
-  function setVolume(vol: number) {
-    state.volume = state.oldVolume = audio.volume = vol
-  }
-
-  // 设置/获取播放百分比
-  function audioCurrentTime(time?: number) {
-    time && (audio.currentTime = time)
-
-    return audio.currentTime
-  }
-
   // 播放/暂停
   async function play(url?: string) {
-    if (state.length === 0) return
+    if (state.list.length === 0) return
 
     // 防止连续点击创建过多定时器
     clearInterval(timer)
@@ -58,7 +42,7 @@ export function usePlay(state: any, audio: HTMLAudioElement) {
 
       // 设置播放时间
       timer = setInterval(() => {
-        state.currentTime = audioCurrentTime()
+        state.currentTime = audio.currentTime
         if (audio.currentTime === audio.duration) {
           clearInterval(timer)
         }
@@ -83,7 +67,7 @@ export function usePlay(state: any, audio: HTMLAudioElement) {
 
   // 上一首、下一首
   function switchMusic(type: 'preview' | 'next') {
-    if (state.length === 0) return
+    if (state.list.length === 0) return
 
     state.currentTime = 0
 
@@ -92,11 +76,11 @@ export function usePlay(state: any, audio: HTMLAudioElement) {
       if (state.currentIndex > 0) {
         state.currentIndex--
       } else {
-        state.currentIndex = state.length - 1
+        state.currentIndex = state.list.length - 1
       }
     } else if (type === 'next') {
       // 下一首
-      if (state.currentIndex < state.length - 1) {
+      if (state.currentIndex < state.list.length - 1) {
         state.currentIndex++
       } else {
         state.currentIndex = 0
@@ -111,9 +95,7 @@ export function usePlay(state: any, audio: HTMLAudioElement) {
   }
 
   return {
-    audioCurrentTime,
     play,
-    setVolume,
     switchMusic,
   }
 }

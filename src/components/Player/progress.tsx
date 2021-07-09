@@ -3,11 +3,13 @@ import {
   defineComponent,
   onMounted,
   ref,
-  toRefs,
   PropType,
   Ref,
+  reactive,
 } from 'vue'
 import { useDrag } from './useDrag'
+import { useProgress } from './useProgress'
+import { ProgressState } from '../../types'
 
 // 秒数转mm:ss格式
 const timeToMinutes = (time: number) => {
@@ -26,12 +28,13 @@ const timeToMinutes = (time: number) => {
 }
 
 const Progress = defineComponent({
+  name: 'Progress',
   props: {
-    currentTime: {
-      type: Number as PropType<number>,
+    audio: {
+      type: Object as PropType<HTMLAudioElement>,
       required: true,
     },
-    duration: {
+    currentTime: {
       type: Number as PropType<number>,
       required: true,
     },
@@ -40,63 +43,51 @@ const Progress = defineComponent({
       required: true,
     },
   },
-  emits: ['change'],
-  setup(props, { emit }) {
-    const { currentTime, duration } = toRefs(props)
-    const width = ref(0) // 定义拖动时的宽度
-    const isDrag = ref(false)
-
-    const getWidth = computed(() => {
-      if (isDrag.value) return width.value
-
-      return duration.value ? (currentTime.value / duration.value) * 400 : 0
+  setup(props) {
+    const state: ProgressState = reactive({
+      duration: 0,
+      width: 0,
+      isDrag: false,
     })
+
+    const { moveHandler, upHandler, handleClick } = useProgress(
+      state,
+      props.audio,
+      props.onChange,
+    )
 
     const progressBar: Ref<HTMLElement | null> = ref(null)
 
-    // 鼠标拖动
-    const moveHandler = (left: number) => {
-      isDrag.value = true
+    const getWidth = computed(() => {
+      if (state.isDrag) return state.width
 
-      if (left >= 400) left = 400
-
-      width.value = left
-    }
-
-    // 鼠标松开
-    const upHandler = () => {
-      isDrag.value = false
-      emit('change', (width.value / 400) * duration.value)
-    }
+      return state.duration ? (props.currentTime / state.duration) * 400 : 0
+    })
 
     onMounted(() =>
       useDrag(progressBar.value as HTMLElement, moveHandler, upHandler),
     )
 
-    return () => (
-      <div class="player-progress">
-        <div class="time">{timeToMinutes(currentTime.value)}</div>
-        <div
-          class="player-progress-bar"
-          onClick={(e: any) =>
-            e.target.nodeName.toLowerCase() === 'div' &&
-            emit('change', (e.offsetX / 400) * duration.value)
-          }
-        >
-          <div
-            class="player-progress-al"
-            style={{ width: getWidth.value + 'px' }}
-          >
-            <span
-              class="player-progress-dot"
-              style={{ left: getWidth.value - 3 + 'px' }}
-              ref={progressBar}
-            ></span>
+    return () => {
+      const width = getWidth.value
+      const { currentTime } = props
+
+      return (
+        <div class="player-progress">
+          <div class="time">{timeToMinutes(currentTime)}</div>
+          <div class="player-progress-bar" onClick={handleClick}>
+            <div class="player-progress-al" style={{ width: width + 'px' }}>
+              <span
+                class="player-progress-dot"
+                style={{ left: width - 3 + 'px' }}
+                ref={progressBar}
+              ></span>
+            </div>
           </div>
+          <div class="time">{timeToMinutes(state.duration)}</div>
         </div>
-        <div class="time">{timeToMinutes(duration.value)}</div>
-      </div>
-    )
+      )
+    }
   },
 })
 

@@ -1,7 +1,9 @@
 import { defineComponent, PropType, reactive, toRefs, watch } from 'vue'
 import { useLyric } from './useLyric'
+import { LyricState } from '../../types'
 
 const Lyric = defineComponent({
+  name: 'Lyric',
   props: {
     data: {
       type: String as PropType<string>,
@@ -13,57 +15,58 @@ const Lyric = defineComponent({
     },
   },
   setup(props) {
-    const { data, audio } = toRefs(props)
-    const options = reactive({
+    const { data } = toRefs(props)
+    const state: LyricState = reactive({
       currentLine: 0,
-      lyricList: [] as any[],
+      lyricList: [],
       show: false,
       data,
-      audio,
     })
 
     watch(
-      data,
+      () => props.data,
       () => {
-        useLyric(options)
+        useLyric(state, props.audio)
       },
       {
         immediate: true,
       },
     )
 
-    return () => (
-      <div class="player-lyric-container">
-        <div
-          class={`player-lyric-switch ${options.show ? 'on' : ''}`}
-          onClick={() => (options.show = !options.show)}
-        >
-          词
-        </div>
-
-        <div
-          class="player-lyric"
-          style={{ display: options.show ? 'block' : 'none' }}
-        >
+    return () => {
+      return (
+        <div class="player-lyric-container">
           <div
-            class="player-lyric-list"
-            style={{
-              transform: `translateY(${-40 * options.currentLine + 30}px)`,
-            }}
+            class={`player-lyric-switch ${state.show ? 'on' : ''}`}
+            onClick={() => (state.show = !state.show)}
           >
-            <ul>
-              {options.lyricList.map((item, index) => {
-                return (
-                  <li class={index === options.currentLine ? 'current' : null}>
-                    {item.content}
-                  </li>
-                )
-              })}
-            </ul>
+            词
+          </div>
+
+          <div
+            class="player-lyric"
+            style={{ display: state.show ? 'block' : 'none' }}
+          >
+            <div
+              class="player-lyric-list"
+              style={{
+                transform: `translateY(${-40 * state.currentLine + 30}px)`,
+              }}
+            >
+              <ul>
+                {state.lyricList.map((item, index) => {
+                  return (
+                    <li class={index === state.currentLine ? 'current' : null}>
+                      {item.content}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
   },
 })
 

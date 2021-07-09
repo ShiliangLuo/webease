@@ -3,11 +3,12 @@ import {
   computed,
   defineComponent,
   reactive,
-  toRefs,
   watch,
   PropType,
+  ComputedRef,
 } from 'vue'
 import { usePlay } from './usePlay'
+import { MusicList, PlayerState } from '../../types'
 import Btns from './btns'
 import Progress from './progress'
 import Volume from './volume'
@@ -21,36 +22,32 @@ const EasePlayer = defineComponent({
   name: 'EasePlayer',
   props: {
     musicList: {
-      type: Array as PropType<any[]>,
+      type: Array as PropType<MusicList[]>,
+      required: true,
+    },
+    onClear: {
+      type: Function as PropType<(id: number | undefined) => void>,
       required: true,
     },
   },
-  emits: ['clear-item', 'clear-store'],
   setup(props) {
-    const { musicList } = toRefs(props)
-    const options = reactive({
-      duration: 0,
+    const list: ComputedRef<MusicList[]> = computed(() => props.musicList)
+    const state: PlayerState = reactive({
       paused: true,
       currentTime: 0,
-      volume: 0.3,
       oldVolume: 0.3,
-      collapsed: true,
       currentIndex: 0,
-      length: computed(() => musicList.value.length),
-      list: computed(() => musicList.value),
+      list,
     })
 
-    const { audioCurrentTime, play, setVolume, switchMusic } = usePlay(
-      options,
-      audio,
-    )
+    const { play, switchMusic } = usePlay(state, audio)
 
-    const watchHandler = (val: any) => {
+    const watchHandler = (val: MusicList[]) => {
       store.set('WEBEASELIST', val)
 
       if (val.length === 0) return
 
-      options.currentIndex = val.length - 1
+      state.currentIndex = val.length - 1
       play(
         `https://music.163.com/song/media/outer/url?id=${
           val[val.length - 1].id
@@ -58,95 +55,82 @@ const EasePlayer = defineComponent({
       )
     }
 
-    watch(musicList, watchHandler, {
+    watch(list, watchHandler, {
       deep: true,
     })
 
-    const lyric = computed(() =>
-      musicList.value && musicList.value.length > 0
-        ? musicList.value[options.currentIndex].lyric
-        : '',
-    )
+    const lyric = computed(() => {
+      if (state.list && state.list.length > 0)
+        return state.list[state.currentIndex].lyric
 
-    return {
-      ...toRefs(options),
-      audioCurrentTime,
-      play,
-      setVolume,
-      switchMusic,
-      lyric,
+      return ''
+    })
+
+    const handlePlay = () => {
+      if (audio.src) {
+        play()
+      } else {
+        play(
+          `https://music.163.com/song/media/outer/url?id=${
+            list.value[state.currentIndex].id
+          }.mp3`,
+        )
+      }
     }
-  },
-  render() {
-    return (
-      <div class="player">
-        <div class="player-main">
-          <Btns
-            paused={this.paused}
-            onPlay={() => {
-              audio.src
-                ? this.play()
-                : this.play(
-                    `https://music.163.com/song/media/outer/url?id=${
-                      this.musicList[this.currentIndex].id
-                    }.mp3`,
-                  )
-            }}
-            onChange={(type: 'preview' | 'next') => this.switchMusic(type)}
-          />
 
-          <Progress
-            currentTime={this.currentTime}
-            duration={this.duration}
-            onChange={(time: number) => {
-              this.paused
-                ? audio.src && this.play()
-                : this.audioCurrentTime(time)
-            }}
-          />
+    const handleClear = (id?: number) => {
+      props.onClear(id)
+    }
 
-          <Volume
-            volume={this.volume}
-            onClick={() =>
-              this.volume !== 0
-                ? (this.volume = audio.volume = 0)
-                : this.setVolume(this.oldVolume)
-            }
-            onChange={vol => this.setVolume(vol)}
-          />
+    const handleListItemClick = (id: number, index: number) => {
+      if (!audio.src) {
+        play(`https://music.163.com/song/media/outer/url?id=${id}.mp3`)
+        state.currentIndex = index
 
-          <List
-            data={this.musicList}
-            collapsed={this.collapsed}
-            currentIndex={this.currentIndex}
-            source={audio.src}
-            onClick={(id, index) => {
-              if (!audio.src) {
-                this.play(
-                  `https://music.163.com/song/media/outer/url?id=${id}.mp3`,
-                )
-                this.currentIndex = index
+        return
+      }
 
-                return
-              }
+      if (state.currentIndex === index) return
 
-              if (this.currentIndex === index) return
+      play(`https://music.163.com/song/media/outer/url?id=${id}.mp3`)
+      state.currentIndex = index
+      state.currentTime = 0
+    }
 
-              this.currentIndex = index
-              this.currentTime = 0
-              this.play(
-                `https://music.163.com/song/media/outer/url?id=${id}.mp3`,
-              )
-            }}
-            onShow={() => (this.collapsed = !this.collapsed)}
-            onClearStore={() => this.$emit('clear-store')}
-            onClearItem={id => this.$emit('clear-item', id)}
-          />
+    return () => {
+      const { paused, currentIndex, list } = state
+      const lyricData = lyric.value
 
-          <Lyric data={this.lyric} audio={audio} />
+      return (
+        <div class="player">
+          <div class="player-main">
+            <Btns
+              paused={paused}
+              onPlay={handlePlay}
+              onChange={type => switchMusic(type)}
+            />
+
+            <Progress
+              audio={audio}
+              currentTime={state.currentTime}
+              onChange={time => (state.currentTime = time)}
+            />
+
+            <Volume audio={audio} onChange={vol => (state.oldVolume = vol)} />
+
+            <List
+              data={list}
+              currentIndex={currentIndex}
+              audio={audio}
+              onClick={handleListItemClick}
+              onClear={id => handleClear(id)}
+            />
+
+            <Lyric data={lyricData} audio={audio} />
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
   },
 })
 

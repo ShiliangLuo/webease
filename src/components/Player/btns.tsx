@@ -1,6 +1,7 @@
-import { defineComponent, toRefs, PropType } from 'vue'
+import { defineComponent, PropType } from 'vue'
 
 const Btns = defineComponent({
+  name: 'Btns',
   props: {
     paused: {
       type: Boolean as PropType<boolean>,
@@ -15,27 +16,33 @@ const Btns = defineComponent({
       required: true,
     },
   },
-  emits: ['play', 'change'],
+  emits: ['change'],
   setup(props, { emit }) {
-    const { paused } = toRefs(props)
+    const play = () => {
+      props.onPlay(props.paused)
+    }
 
-    return () => (
-      <div class="player-btns">
-        <span class="aside-icon" onClick={() => emit('change', 'preview')}>
-          <i class="el-icon-caret-left" />
-        </span>
-        <span class="play-icon" onClick={() => emit('play', paused.value)}>
-          {paused.value ? (
-            <i class="el-icon-video-play" />
-          ) : (
-            <i class="el-icon-video-pause" />
-          )}
-        </span>
-        <span class="aside-icon" onClick={() => emit('change', 'next')}>
-          <i class="el-icon-caret-right" />
-        </span>
-      </div>
-    )
+    return () => {
+      const { paused } = props
+
+      return (
+        <div class="player-btns">
+          <span class="aside-icon" onClick={() => emit('change', 'preview')}>
+            <i class="el-icon-caret-left" />
+          </span>
+          <span class="play-icon" onClick={play}>
+            {paused ? (
+              <i class="el-icon-video-play" />
+            ) : (
+              <i class="el-icon-video-pause" />
+            )}
+          </span>
+          <span class="aside-icon" onClick={() => emit('change', 'next')}>
+            <i class="el-icon-caret-right" />
+          </span>
+        </div>
+      )
+    }
   },
 })
 
