@@ -42,7 +42,7 @@
 
       <div style="margin-top: 30px;">
         <el-pagination
-          @current-change="handleCurrentChange"
+          @current-change="getList"
           v-model:currentPage="postJson.offset"
           :page-size="10"
           layout="total, prev, pager, next"
@@ -55,53 +55,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, onBeforeMount, reactive, Ref, ref } from 'vue'
 import SearchEmpty from '@/components/SearchEmpty'
 import EasePlayer from '@/components/Player/index'
 import { search, song, check, lyric } from '@/api/index'
 import store from 'store'
+import { MusicList } from '@/types'
 
 export default defineComponent({
   name: 'Home',
-  data() {
-    return {
-      tableData: [] as any[],
-      total: 0,
-      postJson: {
-        keywords: '',
-        offset: 1,
-        limit: 10,
-      },
-      id: '',
-      list: [] as any[],
+  setup() {
+    const tableData = ref([])
+    const total = ref(0)
+    const list: Ref<MusicList[]> = ref([])
+    const postJson = reactive({
+      keywords: '',
+      offset: 1,
+      limit: 10,
+    })
+
+    const getList = async () => {
+      const res = await search(postJson).catch(err => console.log(err))
+
+      console.log(res)
+      tableData.value = res.result.songs
+      total.value = res.result.songCount
     }
-  },
-  components: {
-    SearchEmpty,
-    EasePlayer,
-  },
-  created() {
-    // 加载本地数据
-    store.get('WEBEASELIST') && (this.list = store.get('WEBEASELIST'))
-  },
-  methods: {
-    searchMusic() {
-      if (!this.postJson.keywords) return
-      this.postJson.offset = 1
-      this.getList()
-    },
-    getList() {
-      search(this.postJson)
-        .then((res: any) => {
-          console.log(res)
-          this.tableData = res.result.songs
-          this.total = res.result.songCount
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    },
-    async playItem(row: any) {
+
+    const searchMusic = () => {
+      if (!postJson.keywords) return
+
+      postJson.offset = 1
+      getList()
+    }
+
+    const playItem = async (row: any) => {
       try {
         const isAvailable = await check({ id: row.id })
 
@@ -114,18 +102,18 @@ export default defineComponent({
           if (response) {
             let name = ''
             let time = ''
-            this.tableData.forEach((item: any) => {
+            tableData.value.forEach((item: any) => {
               if (item.id === row.id) {
                 name =
                   item.alias.length > 0
                     ? `${item.name}/${item.alias[0]}`
                     : `${item.name}`
-                time = this.timeToMinutes(item.duration)
+                time = timeToMinutes(item.duration)
               }
             })
 
-            this.list.every((item: any) => item.id !== row.id) &&
-              this.list.push({
+            list.value.every(item => item.id !== row.id) &&
+              list.value.push({
                 url: response.data[0].url,
                 name,
                 id: row.id,
@@ -137,19 +125,18 @@ export default defineComponent({
       } catch (e) {
         console.log(e)
       }
-    },
-    clear(id?: number) {
+    }
+
+    const clear = (id?: number) => {
       if (id) {
-        this.list = this.list.filter((item: any) => item.id !== id)
+        list.value = list.value.filter(item => item.id !== id)
       } else {
-        this.list = []
+        list.value = []
         store.remove('WEBEASELIST')
       }
-    },
-    handleCurrentChange() {
-      this.getList()
-    },
-    timeToMinutes(time: number) {
+    }
+
+    function timeToMinutes(time: number) {
       if (!time) return '00:00'
 
       let second: string | number
@@ -161,7 +148,28 @@ export default defineComponent({
       minute = m < 10 ? '0' + m : m
 
       return `${minute}:${second}`
-    },
+    }
+
+    onBeforeMount(() => {
+      // 加载本地数据
+      store.get('WEBEASELIST') && (list.value = store.get('WEBEASELIST'))
+    })
+
+    return {
+      tableData,
+      total,
+      list,
+      postJson,
+      getList,
+      searchMusic,
+      playItem,
+      timeToMinutes,
+      clear,
+    }
+  },
+  components: {
+    SearchEmpty,
+    EasePlayer,
   },
 })
 </script>

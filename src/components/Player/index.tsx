@@ -6,6 +6,7 @@ import {
   watch,
   PropType,
   ComputedRef,
+  App,
 } from 'vue'
 import { usePlay } from './usePlay'
 import { MusicList, PlayerState } from '../../types'
@@ -17,6 +18,19 @@ import Lyric from './lyric'
 import './style.less'
 
 const audio = new Audio()
+
+const PlayerContainer = defineComponent({
+  name: 'PlayerContainer',
+  setup(props, { slots }) {
+    return () => {
+      return (
+        <div class="player">
+          <div class="player-main">{slots.default && slots.default()}</div>
+        </div>
+      )
+    }
+  },
+})
 
 const EasePlayer = defineComponent({
   name: 'EasePlayer',
@@ -55,9 +69,7 @@ const EasePlayer = defineComponent({
       )
     }
 
-    watch(list, watchHandler, {
-      deep: true,
-    })
+    watch(() => props.musicList, watchHandler, { deep: true })
 
     const lyric = computed(() => {
       if (state.list && state.list.length > 0)
@@ -72,7 +84,7 @@ const EasePlayer = defineComponent({
       } else {
         play(
           `https://music.163.com/song/media/outer/url?id=${
-            list.value[state.currentIndex].id
+            state.list[state.currentIndex].id
           }.mp3`,
         )
       }
@@ -102,41 +114,34 @@ const EasePlayer = defineComponent({
       const lyricData = lyric.value
 
       return (
-        <div class="player">
-          <div class="player-main">
-            <Btns
-              paused={paused}
-              onPlay={handlePlay}
-              onChange={type => switchMusic(type)}
-            />
+        <PlayerContainer>
+          <Btns
+            paused={paused}
+            onPlay={handlePlay}
+            onChange={type => switchMusic(type)}
+          />
 
-            <Progress
-              audio={audio}
-              currentTime={state.currentTime}
-              onChange={time => (state.currentTime = time)}
-            />
+          <Progress
+            audio={audio}
+            currentTime={state.currentTime}
+            onChange={time => (state.currentTime = time)}
+          />
 
-            <Volume audio={audio} onChange={vol => (state.oldVolume = vol)} />
+          <Volume audio={audio} onChange={vol => (state.oldVolume = vol)} />
 
-            <List
-              data={list}
-              currentIndex={currentIndex}
-              audio={audio}
-              onClick={handleListItemClick}
-              onClear={id => handleClear(id)}
-            />
+          <List
+            data={list}
+            currentIndex={currentIndex}
+            audio={audio}
+            onClick={handleListItemClick}
+            onClear={id => handleClear(id)}
+          />
 
-            <Lyric data={lyricData} audio={audio} />
-          </div>
-        </div>
+          <Lyric data={lyricData} audio={audio} />
+        </PlayerContainer>
       )
     }
   },
 })
-
-// 暴露Vue插件接口
-EasePlayer.install = function(Vue: any) {
-  Vue.component(EasePlayer.name, EasePlayer)
-}
 
 export default EasePlayer
