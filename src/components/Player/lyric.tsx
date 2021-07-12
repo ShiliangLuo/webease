@@ -38,7 +38,7 @@ const Lyric = defineComponent({
         <div class="player-lyric-container">
           <div
             class={`player-lyric-switch ${state.show ? 'on' : ''}`}
-            onClick={() => (state.show = !state.show)}
+            onClick={() => props.audio.src && (state.show = !state.show)}
           >
             词
           </div>
