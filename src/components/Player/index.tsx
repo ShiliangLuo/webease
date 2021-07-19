@@ -1,4 +1,3 @@
-import store from 'store'
 import {
   computed,
   defineComponent,
@@ -56,8 +55,6 @@ const EasePlayer = defineComponent({
     const { play, switchMusic } = usePlay(state, audio)
 
     const watchHandler = (val: MusicList[]) => {
-      store.set('WEBEASELIST', val)
-
       if (val.length === 0) return
 
       state.currentIndex = val.length - 1

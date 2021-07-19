@@ -112,7 +112,9 @@ export default defineComponent({
               }
             })
 
-            list.value.every(item => item.id !== row.id) &&
+            const isNoExist = list.value.every(item => item.id !== row.id)
+
+            if (isNoExist) {
               list.value.push({
                 url: response.data[0].url,
                 name,
@@ -121,6 +123,9 @@ export default defineComponent({
                 lyric: lyrics.lrc.lyric,
                 outerUrl: `https://music.163.com/song/media/outer/url?id=${row.id}.mp3`,
               })
+
+              store.set('WEBEASELIST', list.value)
+            }
           }
         }
       } catch (e) {
