@@ -56,7 +56,10 @@ const Lyric = defineComponent({
               <ul>
                 {state.lyricList.map((item, index) => {
                   return (
-                    <li class={index === state.currentLine ? 'current' : null}>
+                    <li
+                      class={index === state.currentLine ? 'current' : null}
+                      key={index}
+                    >
                       {item.content}
                     </li>
                   )

@@ -21,19 +21,19 @@ const List = defineComponent({
       required: true,
     },
     onClick: {
-      type: Function as PropType<(id: number, index: number) => void>,
+      type: Function as PropType<(url: string, index: number) => void>,
       required: true,
     },
   },
   setup(props) {
-    const collapsed: Ref<boolean> = ref(true)
+    const collapsedRef: Ref<boolean> = ref(true)
 
     const handleClear = (id?: number) => {
       props.onClear(id)
     }
 
-    const handleListItemClick = (id: number, index: number) => {
-      props.onClick(id, index)
+    const handleListItemClick = (url: string, index: number) => {
+      props.onClick(url, index)
     }
 
     return () => {
@@ -43,49 +43,53 @@ const List = defineComponent({
         <div class="player-list">
           <div
             class="collapse-btn pointer"
-            onClick={() => (collapsed.value = !collapsed.value)}
+            onClick={() => (collapsedRef.value = !collapsedRef.value)}
           >
-            {collapsed.value ? (
-              <i class="el-icon-s-unfold" />
-            ) : (
+            {collapsedRef.value ? (
               <i class="el-icon-s-fold" />
+            ) : (
+              <i class="el-icon-s-unfold" />
             )}
           </div>
 
-          <div
-            class="player-list-container"
-            style={{ right: collapsed.value ? '-300px' : 0 }}
-          >
-            <div class="player-list-clear">
-              <span onClick={() => handleClear()}>清空列表</span>
-            </div>
-            <ul>
-              {data.map((item, index) => {
-                return (
-                  <li
-                    class={currentIndex === index && audio.src ? 'playing' : ''}
-                  >
-                    <div
-                      class="list-title"
-                      onClick={() => handleListItemClick(item.id, index)}
+          <Transition name="list-slide">
+            <div class="player-list-container" v-show={collapsedRef.value}>
+              <div class="player-list-clear">
+                <span onClick={() => handleClear()}>清空列表</span>
+              </div>
+              <ul>
+                {data.map((item, index) => {
+                  return (
+                    <li
+                      class={
+                        currentIndex === index && audio.src ? 'playing' : ''
+                      }
+                      key={item.id}
                     >
-                      {item.name}
-                    </div>
-                    <div class="list-time">{item.time}</div>
-                    <div class="list-icon">
-                      <i class="iconfont icon-SOUNDPLUS" />
-                    </div>
-                    <div class="list-delete">
-                      <i
-                        class="el-icon-circle-close"
-                        onClick={() => handleClear(item.id)}
-                      />
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
+                      <div
+                        class="list-title"
+                        onClick={() =>
+                          handleListItemClick(item.outerUrl, index)
+                        }
+                      >
+                        {item.name}
+                      </div>
+                      <div class="list-time">{item.time}</div>
+                      <div class="list-icon">
+                        <i class="iconfont icon-SOUNDPLUS" />
+                      </div>
+                      <div class="list-delete">
+                        <i
+                          class="el-icon-circle-close"
+                          onClick={() => handleClear(item.id)}
+                        />
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </Transition>
         </div>
       )
     }

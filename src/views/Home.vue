@@ -119,6 +119,7 @@ export default defineComponent({
                 id: row.id,
                 time,
                 lyric: lyrics.lrc.lyric,
+                outerUrl: `https://music.163.com/song/media/outer/url?id=${row.id}.mp3`,
               })
           }
         }

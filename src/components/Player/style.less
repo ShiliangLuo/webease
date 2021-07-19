@@ -1,5 +1,5 @@
 .player {
-  background: rgba(0, 0, 0, .5);
+  background: rgba(0, 0, 0, 0.5);
   position: fixed;
   bottom: 0;
   left: 0;
@@ -161,7 +161,7 @@
     z-index: 20;
     .collapse-btn {
       font-size: 20px;
-      color: #C0C4CC;
+      color: #c0c4cc;
     }
 
     .player-list-container {
@@ -172,8 +172,7 @@
       bottom: 116px;
       right: 0;
       // background: #1d1d1d;
-      background: rgba(0, 0, 0, .5);
-      transition: right ease .3s;
+      background: rgba(0, 0, 0, 0.5);
       padding: 30px 20px;
 
       .player-list-clear {
@@ -197,7 +196,7 @@
         &::-webkit-scrollbar {
           width: 4px;
         }
-      
+
         &::-webkit-scrollbar-thumb {
           width: 4px;
           background: rgba(119, 119, 119, 0.6);
@@ -273,6 +272,16 @@
         }
       }
     }
+
+    .list-slide-enter-active,
+    .list-slide-leave-active {
+      transition: all ease 0.3s;
+    }
+    .list-slide-enter-from,
+    .list-slide-leave-to {
+      opacity: 0;
+      transform: translateX(300px);
+    }
   }
 
   .player-lyric-container {
@@ -321,12 +330,12 @@
     }
 
     .player-lyric-list {
-      color: rgba(255, 255, 255, .2);
+      color: rgba(255, 255, 255, 0.2);
       text-align: center;
       font-size: 18px;
       line-height: 40px;
       white-space: pre-wrap;
-      transition: all ease .3s;
+      transition: all ease 0.3s;
       transform: translateY(30px);
       position: relative;
       z-index: 1;

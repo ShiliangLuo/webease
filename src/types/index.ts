@@ -1,5 +1,6 @@
 export interface MusicList {
   url: string
+  outerUrl: string
   id: number
   lyric: string
   name: string

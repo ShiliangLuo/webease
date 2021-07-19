@@ -87,11 +87,7 @@ export function usePlay(state: PlayerState, audio: HTMLAudioElement) {
       }
     }
 
-    play(
-      `https://music.163.com/song/media/outer/url?id=${
-        state.list[state.currentIndex].id
-      }.mp3`,
-    )
+    play(state.list[state.currentIndex].outerUrl)
   }
 
   return {

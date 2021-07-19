@@ -6,7 +6,6 @@ import {
   watch,
   PropType,
   ComputedRef,
-  App,
 } from 'vue'
 import { usePlay } from './usePlay'
 import { MusicList, PlayerState } from '../../types'
@@ -62,11 +61,7 @@ const EasePlayer = defineComponent({
       if (val.length === 0) return
 
       state.currentIndex = val.length - 1
-      play(
-        `https://music.163.com/song/media/outer/url?id=${
-          val[val.length - 1].id
-        }.mp3`,
-      )
+      play(val[val.length - 1].outerUrl)
     }
 
     watch(() => props.musicList, watchHandler, { deep: true })
@@ -79,24 +74,16 @@ const EasePlayer = defineComponent({
     })
 
     const handlePlay = () => {
-      if (audio.src) {
-        play()
-      } else {
-        play(
-          `https://music.163.com/song/media/outer/url?id=${
-            state.list[state.currentIndex].id
-          }.mp3`,
-        )
-      }
+      audio.src ? play() : play(state.list[state.currentIndex].outerUrl)
     }
 
     const handleClear = (id?: number) => {
       props.onClear(id)
     }
 
-    const handleListItemClick = (id: number, index: number) => {
+    const handleListItemClick = (url: string, index: number) => {
       if (!audio.src) {
-        play(`https://music.163.com/song/media/outer/url?id=${id}.mp3`)
+        play(url)
         state.currentIndex = index
 
         return
@@ -104,7 +91,7 @@ const EasePlayer = defineComponent({
 
       if (state.currentIndex === index) return
 
-      play(`https://music.163.com/song/media/outer/url?id=${id}.mp3`)
+      play(url)
       state.currentIndex = index
       state.currentTime = 0
     }

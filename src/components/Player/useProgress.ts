@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import { ProgressState } from '../../types'
 
 export function useProgress(
