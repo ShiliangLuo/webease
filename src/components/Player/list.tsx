@@ -36,20 +36,23 @@ const List = defineComponent({
       props.onClick(url, index)
     }
 
+    const toggleCollapse = () => (collapsedRef.value = !collapsedRef.value)
+
+    const collapseIcon = () => {
+      if (collapsedRef.value) {
+        return <i class="el-icon-s-fold" />
+      }
+
+      return <i class="el-icon-s-unfold" />
+    }
+
     return () => {
       const { data, currentIndex, audio } = props
 
       return (
         <div class="player-list">
-          <div
-            class="collapse-btn pointer"
-            onClick={() => (collapsedRef.value = !collapsedRef.value)}
-          >
-            {collapsedRef.value ? (
-              <i class="el-icon-s-fold" />
-            ) : (
-              <i class="el-icon-s-unfold" />
-            )}
+          <div class="collapse-btn pointer" onClick={toggleCollapse}>
+            {collapseIcon()}
           </div>
 
           <Transition name="list-slide">

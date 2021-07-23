@@ -1,9 +1,9 @@
-import { LyricState, LyricItem } from '../../types'
+import { LyricState } from '../../types'
 
 export function useLyric(state: LyricState, audio: HTMLAudioElement) {
   if (!state.data) return
 
-  state.lyricList = [] as LyricItem[]
+  state.lyricList = []
   state.currentLine = 0
   // 使用换行符\n拆分歌词
   const lyricArr = state.data.split('\n')

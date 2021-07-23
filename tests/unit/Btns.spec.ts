@@ -1,36 +1,40 @@
 import { mount } from '@vue/test-utils'
-import TestBtns from './utils/TestBtns'
 import Btns from '@/components/Player/btns'
-import { MusicList } from '@/types'
 
-describe('Component', () => {
-  it('should render btns', async () => {
-    let paused = true
-    let type = ''
+describe('Btns', () => {
+  let props: any
 
-    const wrapper = mount(Btns, {
-      props: {
-        paused,
-        onPlay: (v: boolean) => {
-          paused = v
-        },
-        onChange: (v: 'preview' | 'next') => {
-          type = v
-        },
-      },
-    })
+  beforeEach(() => {
+    props = {
+      paused: true,
+      onPlay: () => {},
+      onChange: () => {},
+    }
+  })
 
+  it('should emit play event', () => {
+    const wrapper = mount(Btns, { props })
     const playIcon = wrapper.find('.play-icon')
-    const prewBtn = wrapper.findAll('.aside-icon')
-    const nextBtn = wrapper.findAll('.aside-icon')
 
-    await playIcon.trigger('click')
-    expect(paused).toBe(true)
+    playIcon.trigger('click')
+    expect(wrapper.emitted('play')).toBeTruthy()
+  })
 
-    await prewBtn[0].trigger('click')
-    expect(type).toBe('preview')
+  it('should emit change event', () => {
+    const wrapper = mount(Btns, { props })
+    const switchBtn = wrapper.findAll('.aside-icon')
 
-    await nextBtn[1].trigger('click')
-    expect(type).toBe('next')
+    switchBtn[0].trigger('click')
+    expect(wrapper.emitted('change')).toBeTruthy()
+
+    switchBtn[1].trigger('click')
+    expect(wrapper.emitted('change')).toBeTruthy()
+  })
+
+  it('should render paused icon', () => {
+    const wrapper = mount(Btns, { props: { ...props, paused: false } })
+    const pausedIcon = wrapper.find('.el-icon-video-pause')
+
+    expect(pausedIcon.exists()).toBeTruthy()
   })
 })

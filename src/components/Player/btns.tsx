@@ -16,26 +16,23 @@ const Btns = defineComponent({
       required: true,
     },
   },
-  emits: ['change'],
+  emits: ['change', 'play'],
   setup(props, { emit }) {
-    const play = () => {
-      props.onPlay(props.paused)
+    const playIcon = () => {
+      if (props.paused) {
+        return <i class="el-icon-video-play" />
+      }
+      return <i class="el-icon-video-pause" />
     }
 
     return () => {
-      const { paused } = props
-
       return (
         <div class="player-btns">
           <span class="aside-icon" onClick={() => emit('change', 'preview')}>
             <i class="el-icon-caret-left" />
           </span>
-          <span class="play-icon" onClick={play}>
-            {paused ? (
-              <i class="el-icon-video-play" />
-            ) : (
-              <i class="el-icon-video-pause" />
-            )}
+          <span class="play-icon" onClick={() => emit('play')}>
+            {playIcon()}
           </span>
           <span class="aside-icon" onClick={() => emit('change', 'next')}>
             <i class="el-icon-caret-right" />
